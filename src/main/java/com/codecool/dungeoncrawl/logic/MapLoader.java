@@ -51,7 +51,9 @@ public class MapLoader {
                             break;
                         case '@':
                             cell.setType(CellType.FLOOR);
-                            map.setPlayer(new Player(cell));
+                            Player player = new Player(cell);
+                            player.getInventory().addItem(new Sword(cell));
+                            map.setPlayer(player);
                             break;
                         case 'a':
                             cell.setType(CellType.FLOOR);

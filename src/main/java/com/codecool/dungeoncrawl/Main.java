@@ -21,7 +21,12 @@ public class Main extends Application {
     Canvas canvas = new Canvas(
             map.getWidth() * Tiles.TILE_WIDTH,
             map.getHeight() * Tiles.TILE_WIDTH);
+
+    Canvas canvasInventory = new Canvas(
+            4 * Tiles.TILE_WIDTH,
+            5 * Tiles.TILE_WIDTH);
     GraphicsContext context = canvas.getGraphicsContext2D();
+    GraphicsContext contextInventory = canvasInventory.getGraphicsContext2D();
     Label healthLabel = new Label();
     Label inventoryLabel = new Label();
 
@@ -38,6 +43,7 @@ public class Main extends Application {
         ui.add(new Label("Health: "), 0, 0);
         ui.add(healthLabel, 1, 0);
         ui.add(inventoryLabel, 0, 1);
+        ui.add(canvasInventory, 0,1);
 
         BorderPane borderPane = new BorderPane();
 
@@ -94,7 +100,7 @@ public class Main extends Application {
         int x =0;
         for (Item item : map.getPlayer().getInventory().getItems()) {
             if (item instanceof Sword) {
-                Tiles.drawItemIcon(context, item, x, 1);
+                Tiles.drawItemIcon(contextInventory, item, x, 1);
                 x++;
             }
             if (item instanceof KeyClass) {
