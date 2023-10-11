@@ -2,6 +2,7 @@ package com.codecool.dungeoncrawl.logic;
 
 import com.codecool.dungeoncrawl.logic.actors.Actor;
 import com.codecool.dungeoncrawl.logic.items.Item;
+import static com.codecool.dungeoncrawl.logic.CellType.WALL;
 
 
 public class Cell implements Drawable {
@@ -9,6 +10,7 @@ public class Cell implements Drawable {
     private Actor actor;
     private Item item;
     private GameMap gameMap;
+    private Item item;
     private int x, y;
 
     Cell(GameMap gameMap, int x, int y, CellType type) {
@@ -47,6 +49,14 @@ public class Cell implements Drawable {
         return type.getTileName();
     }
 
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
     public int getX() {
         return x;
     }
@@ -56,4 +66,8 @@ public class Cell implements Drawable {
     }
 
 
-}
+    public boolean isOccupied(){
+        return this.actor != null || WALL.equals(this.type);
+    }
+ }
+

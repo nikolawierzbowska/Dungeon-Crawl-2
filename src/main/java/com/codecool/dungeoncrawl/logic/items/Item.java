@@ -5,9 +5,6 @@ import com.codecool.dungeoncrawl.logic.Drawable;
 
 public abstract  class Item implements Drawable {
     private Cell cell;
-//    private String tileName;
-//    private int amount;
-//    private int valueOfItem;
 
     public Item(Cell cell) {
         this.cell = cell;
@@ -17,6 +14,4 @@ public abstract  class Item implements Drawable {
     public Cell getCell() {
         return cell;
     }
-
-
 }
