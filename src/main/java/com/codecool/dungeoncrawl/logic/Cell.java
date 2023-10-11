@@ -4,6 +4,8 @@ import com.codecool.dungeoncrawl.logic.actors.Actor;
 import com.codecool.dungeoncrawl.logic.items.Item;
 
 
+import static com.codecool.dungeoncrawl.logic.CellType.WALL;
+
 public class Cell implements Drawable {
     private CellType type;
     private Actor actor;
@@ -60,4 +62,7 @@ public class Cell implements Drawable {
     public int getY() {
         return y;
     }
-}
+    public boolean isOccupied(){
+        return this.actor != null || WALL.equals(this.type);
+    }
+ }
