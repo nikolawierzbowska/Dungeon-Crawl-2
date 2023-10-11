@@ -1,8 +1,6 @@
 package com.codecool.dungeoncrawl.logic.items;
 
 import com.codecool.dungeoncrawl.logic.Cell;
-import lombok.Data;
-
 
 public class Armour extends Item {
     private final int AMOUNT = 5;

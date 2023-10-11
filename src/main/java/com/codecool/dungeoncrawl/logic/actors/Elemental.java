@@ -2,14 +2,13 @@ package com.codecool.dungeoncrawl.logic.actors;
 
 import com.codecool.dungeoncrawl.logic.Cell;
 
+public class Elemental extends Actor {
 
-public class Ghost extends Actor {
-    public Ghost(Cell cell) {
+    public Elemental(Cell cell) {
         super(cell);
     }
-
     @Override
     public String getTileName() {
-        return "ghost";
+        return "elemental";
     }
 }

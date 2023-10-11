@@ -7,6 +7,7 @@ public class Sword extends Item {
     private final int AMOUNT = 3;
     private final int VALUE= 15;
     private final String TILE_NAME = "sword";
+
     public Sword(Cell cell) {
         super(cell);
     }
@@ -16,5 +17,3 @@ public class Sword extends Item {
         return TILE_NAME;
     }
 }
-
-
