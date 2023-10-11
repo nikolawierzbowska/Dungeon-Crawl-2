@@ -3,6 +3,7 @@ package com.codecool.dungeoncrawl;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.GameMap;
 import com.codecool.dungeoncrawl.logic.MapLoader;
+import com.codecool.dungeoncrawl.logic.items.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -22,6 +23,7 @@ public class Main extends Application {
             map.getHeight() * Tiles.TILE_WIDTH);
     GraphicsContext context = canvas.getGraphicsContext2D();
     Label healthLabel = new Label();
+    Label inventoryLabel = new Label();
 
     public static void main(String[] args) {
         launch(args);
@@ -35,6 +37,7 @@ public class Main extends Application {
 
         ui.add(new Label("Health: "), 0, 0);
         ui.add(healthLabel, 1, 0);
+        ui.add(inventoryLabel, 0, 1);
 
         BorderPane borderPane = new BorderPane();
 
@@ -79,11 +82,33 @@ public class Main extends Application {
                 Cell cell = map.getCell(x, y);
                 if (cell.getActor() != null) {
                     Tiles.drawTile(context, cell.getActor(), x, y);
+                } else if(cell.getItem() != null) {
+                    Tiles.drawTile(context, cell.getItem(), x, y);
                 } else {
                     Tiles.drawTile(context, cell, x, y);
                 }
             }
         }
         healthLabel.setText("" + map.getPlayer().getHealth());
+        inventoryLabel.setText("Inventory: ");
+        int x =0;
+        for (Item item : map.getPlayer().getInventory().getItems()) {
+            if (item instanceof Sword) {
+                Tiles.drawItemIcon(context, item, x, 1);
+                x++;
+            }
+            if (item instanceof KeyClass) {
+                Tiles.drawItemIcon(context, item, x, 1);
+                x++;
+            }
+            if (item instanceof Armour) {
+                Tiles.drawItemIcon(context, item, x, 1);
+                x++;
+            }
+            if (item instanceof Elixir) {
+                Tiles.drawItemIcon(context, item, x, 1);
+                x++;
+            }
+        }
     }
 }
