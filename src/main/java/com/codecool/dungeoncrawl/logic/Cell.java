@@ -12,7 +12,7 @@ public class Cell implements Drawable {
     private GameMap gameMap;
     private int x, y;
 
-    Cell(GameMap gameMap, int x, int y, CellType type) {
+    public Cell(GameMap gameMap, int x, int y, CellType type) {
         this.gameMap = gameMap;
         this.x = x;
         this.y = y;
@@ -31,13 +31,17 @@ public class Cell implements Drawable {
         this.actor = actor;
     }
 
-    public void setItem(Item item) { this.item = item; }
-
     public Actor getActor() {
         return actor;
     }
 
-    public Item getItem() { return item; }
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public Item getItem() {
+        return item;
+    }
 
     public Cell getNeighbor(int dx, int dy) {
         return gameMap.getCell(x + dx, y + dy);
@@ -59,5 +63,5 @@ public class Cell implements Drawable {
     public boolean isOccupied(){
         return this.actor != null || WALL.equals(this.type);
     }
- }
+}
 
