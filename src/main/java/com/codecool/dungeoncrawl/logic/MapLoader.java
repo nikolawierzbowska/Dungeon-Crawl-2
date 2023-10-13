@@ -49,7 +49,6 @@ public class MapLoader {
                         case '@':
                             cell.setType(CellType.FLOOR);
                             Player player = new Player(cell);
-//                            player.getInventory().addItem(new Sword(cell));
                             map.setPlayer(player);
                             break;
                         case 'a':
@@ -68,7 +67,6 @@ public class MapLoader {
                             cell.setType(CellType.FLOOR);
                             new KeyClass(cell);
                             break;
-
                         default:
                             throw new RuntimeException("Unrecognized character: '" + line.charAt(x) + "'");
                     }
