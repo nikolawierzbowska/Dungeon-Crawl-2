@@ -1,15 +1,14 @@
 package com.codecool.dungeoncrawl;
 
-import com.codecool.dungeoncrawl.logic.Cell;
-import com.codecool.dungeoncrawl.logic.GameMap;
-import com.codecool.dungeoncrawl.logic.MapLoader;
+import com.codecool.dungeoncrawl.logic.*;
 import com.codecool.dungeoncrawl.logic.items.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Label;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -29,6 +28,8 @@ public class Main extends Application {
     GraphicsContext contextInventory = canvasInventory.getGraphicsContext2D();
     Label healthLabel = new Label();
     Label inventoryLabel = new Label();
+    Button buttonPickUp = new Button("Pick Up");
+
 
     public static void main(String[] args) {
         launch(args);
@@ -39,16 +40,26 @@ public class Main extends Application {
         GridPane ui = new GridPane();
         ui.setPrefWidth(200);
         ui.setPadding(new Insets(10));
-
-        ui.add(new Label("Health: "), 0, 0);
+        ui.add(new Label("Health:"), 0, 0);
         ui.add(healthLabel, 1, 0);
-        ui.add(inventoryLabel, 0, 1);
-        ui.add(canvasInventory, 0,1);
+
+        GridPane.setMargin(buttonPickUp, new Insets(70, 0, 10, 0));
+        ui.add(buttonPickUp, 0, 1);
+        ui.add(inventoryLabel, 0, 2);
+        ui.add(canvasInventory, 0, 3);
+
+        buttonPickUp.setMaxSize(60,30);
+        buttonPickUp.setFocusTraversable(false);
+
+        buttonPickUp.setOnAction(actionEvent -> {
+            collectItems();
+        });
 
         BorderPane borderPane = new BorderPane();
 
         borderPane.setCenter(canvas);
         borderPane.setRight(ui);
+        borderPane.setStyle("-fx-border-color: black");
 
         Scene scene = new Scene(borderPane);
         primaryStage.setScene(scene);
@@ -74,7 +85,7 @@ public class Main extends Application {
                 refresh();
                 break;
             case RIGHT:
-                map.getPlayer().move(1,0);
+                map.getPlayer().move(1, 0);
                 refresh();
                 break;
         }
@@ -86,34 +97,54 @@ public class Main extends Application {
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
+
                 if (cell.getActor() != null) {
                     Tiles.drawTile(context, cell.getActor(), x, y);
-                } else if(cell.getItem() != null) {
+                } else if (cell.getItem() != null) {
                     Tiles.drawTile(context, cell.getItem(), x, y);
-                }else {
+
+
+                } else {
                     Tiles.drawTile(context, cell, x, y);
                 }
             }
         }
-        healthLabel.setText("" + map.getPlayer().getHealth());
+        healthLabel.setText("" +map.getPlayer().getHealth());
         inventoryLabel.setText("Inventory: ");
-        int x =0;
+        int x = 0;
         for (Item item : map.getPlayer().getInventory().getItems()) {
+          int y= map.getPlayer().getInventory().getItems().indexOf(item);
             if (item instanceof Sword) {
-                Tiles.drawItemIcon(contextInventory, item, x, 1);
-                x++;
+                Tiles.drawItemIcon(contextInventory, item, x, y);
             }
             if (item instanceof KeyClass) {
-                Tiles.drawItemIcon(context, item, x, 1);
-                x++;
+                Tiles.drawItemIcon(contextInventory, item, x, y);
             }
             if (item instanceof Armour) {
-                Tiles.drawItemIcon(context, item, x, 1);
-                x++;
+                Tiles.drawItemIcon(contextInventory, item, x, y);
             }
             if (item instanceof Elixir) {
-                Tiles.drawItemIcon(context, item, x, 1);
-                x++;
+                Tiles.drawItemIcon(contextInventory, item, x, y);
+            }
+        }
+    }
+
+
+    public void collectItems() {
+        for (int x = 0; x < map.getWidth(); x++) {
+            for (int y = 0; y < map.getHeight(); y++) {
+                Cell cell = map.getCell(x, y);
+
+                if (cell.getActor() != null && cell.getItem() != null) {
+                    int health = map.getPlayer().getHealth();
+                    map.getPlayer().getInventory().addItem(cell.getItem());
+
+                    health+= cell.getItem().getVALUE();
+                    map.getPlayer().setHealth(health);
+                    healthLabel.setText("" + health);
+                    cell.setItem(null);
+                    refresh();
+                }
             }
         }
     }
