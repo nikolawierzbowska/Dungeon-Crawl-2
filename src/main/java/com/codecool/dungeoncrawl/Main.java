@@ -8,14 +8,23 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import java.io.File;
+
 
 public class Main extends Application {
+    private final String STEP_SOUND = "step.wav";
+    private final String ELIXIR_SOUND = "elixir.wav";
+    private final String FIGHT_SOUND = "fight.wav";
+    private final String SWORD_SOUND = "sword.wav";
+    private final String KEYS_SOUND = "keys.wav";
     GameMap map = MapLoader.loadMap();
     Canvas canvas = new Canvas(
             map.getWidth() * Tiles.TILE_WIDTH,
@@ -48,7 +57,7 @@ public class Main extends Application {
         ui.add(inventoryLabel, 0, 2);
         ui.add(canvasInventory, 0, 3);
 
-        buttonPickUp.setMaxSize(60,30);
+        buttonPickUp.setMaxSize(60, 30);
         buttonPickUp.setFocusTraversable(false);
 
         buttonPickUp.setOnAction(actionEvent -> {
@@ -65,7 +74,6 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         refresh();
         scene.setOnKeyPressed(this::onKeyPressed);
-
         primaryStage.setTitle("Dungeon Crawl");
         primaryStage.show();
     }
@@ -89,6 +97,7 @@ public class Main extends Application {
                 refresh();
                 break;
         }
+        playSound(STEP_SOUND);
     }
 
     private void refresh() {
@@ -97,23 +106,20 @@ public class Main extends Application {
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
-
                 if (cell.getActor() != null) {
                     Tiles.drawTile(context, cell.getActor(), x, y);
                 } else if (cell.getItem() != null) {
                     Tiles.drawTile(context, cell.getItem(), x, y);
-
-
                 } else {
                     Tiles.drawTile(context, cell, x, y);
                 }
             }
         }
-        healthLabel.setText("" +map.getPlayer().getHealth());
+        healthLabel.setText("" + map.getPlayer().getHealth());
         inventoryLabel.setText("Inventory: ");
         int x = 0;
         for (Item item : map.getPlayer().getInventory().getItems()) {
-          int y= map.getPlayer().getInventory().getItems().indexOf(item);
+            int y = map.getPlayer().getInventory().getItems().indexOf(item);
             if (item instanceof Sword) {
                 Tiles.drawItemIcon(contextInventory, item, x, y);
             }
@@ -136,16 +142,34 @@ public class Main extends Application {
                 Cell cell = map.getCell(x, y);
 
                 if (cell.getActor() != null && cell.getItem() != null) {
+                    if (cell.getItem() instanceof Sword || cell.getItem() instanceof Armour) {
+                        playSound(SWORD_SOUND);
+                    } else if (cell.getItem() instanceof Elixir) {
+                        playSound(ELIXIR_SOUND);
+                    }else if (cell.getItem() instanceof KeyClass) {
+                        playSound(KEYS_SOUND);
+                    }
                     int health = map.getPlayer().getHealth();
                     map.getPlayer().getInventory().addItem(cell.getItem());
 
-                    health+= cell.getItem().getVALUE();
+                    health += cell.getItem().getVALUE();
                     map.getPlayer().setHealth(health);
                     healthLabel.setText("" + health);
                     cell.setItem(null);
                     refresh();
                 }
             }
+        }
+    }
+
+    private void playSound(String fileName) {
+        try {
+            File wavFile = new File("src/main/resources/" + fileName);
+            Clip clip = AudioSystem.getClip();
+            clip.open(AudioSystem.getAudioInputStream(wavFile));
+            clip.start();
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 }
