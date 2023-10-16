@@ -10,13 +10,24 @@ import java.io.InputStream;
 import java.util.Scanner;
 
 public class MapLoader {
-    public static GameMap loadMap() {
-        InputStream is = MapLoader.class.getResourceAsStream("/map.txt");
+    public static GameMap loadMap(boolean key, String mapName) {
+        InputStream is = null;
+        if (!key) {
+            is = MapLoader.class.getResourceAsStream("/map" + mapName + ".txt");
+
+        }else if(key){
+            is = MapLoader.class.getResourceAsStream("/map" + mapName + ".txt");
+
+        }
         Scanner scanner = new Scanner(is);
         int width = scanner.nextInt();
         int height = scanner.nextInt();
         scanner.nextLine();
 
+        return drawGameMap(scanner, width, height);
+    }
+
+    private static GameMap drawGameMap(Scanner scanner, int width, int height) {
         GameMap map = new GameMap(width, height, CellType.EMPTY);
         for (int y = 0; y < height; y++) {
             String line = scanner.nextLine();
@@ -27,11 +38,23 @@ public class MapLoader {
                         case ' ':
                             cell.setType(CellType.EMPTY);
                             break;
+                        case '1':
+                            cell.setType(CellType.TREE1);
+                            break;
+                        case '2':
+                            cell.setType(CellType.TREE2);
+                            break;
+                        case '3':
+                            cell.setType(CellType.TREE3);
+                            break;
                         case '#':
                             cell.setType(CellType.WALL);
                             break;
                         case '.':
                             cell.setType(CellType.FLOOR);
+                            break;
+                        case '%':
+                            cell.setType(CellType.STAIRS);
                             break;
                         case 's':
                             cell.setType(CellType.FLOOR);

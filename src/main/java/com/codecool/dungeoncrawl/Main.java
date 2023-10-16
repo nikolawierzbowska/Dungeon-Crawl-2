@@ -20,12 +20,13 @@ import java.io.File;
 
 
 public class Main extends Application {
+    public static boolean key= false;
     private final String STEP_SOUND = "step.wav";
     private final String ELIXIR_SOUND = "elixir.wav";
     private final String FIGHT_SOUND = "fight.wav";
     private final String SWORD_SOUND = "sword.wav";
     private final String KEYS_SOUND = "keys.wav";
-    GameMap map = MapLoader.loadMap();
+    GameMap map = MapLoader.loadMap(key, "");
     Canvas canvas = new Canvas(
             map.getWidth() * Tiles.TILE_WIDTH,
             map.getHeight() * Tiles.TILE_WIDTH);
@@ -98,6 +99,7 @@ public class Main extends Application {
                 break;
         }
         playSound(STEP_SOUND);
+        changeMap();
     }
 
     private void refresh() {
@@ -170,6 +172,25 @@ public class Main extends Application {
             clip.start();
         } catch (Exception e) {
             System.out.println(e);
+        }
+    }
+    public void changeMap() {
+        for (int x = 0; x < map.getWidth(); x++) {
+            for (int y = 0; y < map.getHeight(); y++) {
+                Cell cell = map.getCell(x, y);
+                if (cell.getActor() != null && cell.getType().equals(CellType.DOOR)) {
+                    key = !key;
+                    map = MapLoader.loadMap(key, "Forest");
+                    context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                    refresh();
+                    return;
+                } else if (cell.getActor() != null && cell.getType().equals(CellType.STAIRS)){
+                    map = MapLoader.loadMap(key,"Basement");
+                    context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                    refresh();
+                    return;
+                }
+            }
         }
     }
 }
