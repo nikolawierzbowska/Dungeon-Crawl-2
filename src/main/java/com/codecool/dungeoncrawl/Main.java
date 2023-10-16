@@ -9,18 +9,21 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.io.File;
+import java.util.Objects;
 
 
 public class Main extends Application {
-    public static boolean key= false;
+    public static boolean key = false;
     private final String STEP_SOUND = "step.wav";
     private final String ELIXIR_SOUND = "elixir.wav";
     private final String FIGHT_SOUND = "fight.wav";
@@ -40,6 +43,9 @@ public class Main extends Application {
     Label inventoryLabel = new Label();
     Button buttonPickUp = new Button("Pick Up");
 
+    Label labelName = new Label("Name:");
+    Button submit = new Button("Submit");
+
 
     public static void main(String[] args) {
         launch(args);
@@ -49,24 +55,45 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         GridPane ui = new GridPane();
         ui.setPrefWidth(200);
-        ui.setPadding(new Insets(10));
-        ui.add(new Label("Health:"), 0, 0);
-        ui.add(healthLabel, 1, 0);
+        ui.setPadding(new Insets(10, 15, 10, 15));
 
-        GridPane.setMargin(buttonPickUp, new Insets(70, 0, 10, 0));
-        ui.add(buttonPickUp, 0, 1);
-        ui.add(inventoryLabel, 0, 2);
-        ui.add(canvasInventory, 0, 3);
+        TextField name = new TextField();
+        name.setPromptText("Enter player's name.");
+        ui.add(labelName, 0, 0);
+        ui.add(name, 0, 1);
+        GridPane.setMargin(submit, new Insets(10, 0, 30, 0));
+        ui.add(submit, 0, 2);
 
-        buttonPickUp.setMaxSize(60, 30);
+        ui.add(new Label("Health:"), 0, 3);
+        ui.add(healthLabel, 1, 3);
+
+        GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
+        ui.add(buttonPickUp, 0, 4);
+        ui.add(inventoryLabel, 0, 5);
+        canvasInventory.setHeight(400);
+        ui.add(canvasInventory, 0, 6);
+
+
         buttonPickUp.setFocusTraversable(false);
-
         buttonPickUp.setOnAction(actionEvent -> {
             collectItems();
         });
 
-        BorderPane borderPane = new BorderPane();
+        if (name.getText().isEmpty()) {
+            name.setFocusTraversable(false);
+            submit.setFocusTraversable(false);
+        }
+        name.setOnKeyPressed(actionEvent -> {
+            submit.setFocusTraversable(true);
+            submit.setDisable(false);
+        });
+        submit.setOnAction(actionEvent -> {
+            if (!name.getText().isEmpty())
+                submit.setDisable(true);
+        });
 
+
+        BorderPane borderPane = new BorderPane();
         borderPane.setCenter(canvas);
         borderPane.setRight(ui);
         borderPane.setStyle("-fx-border-color: black");
@@ -148,7 +175,7 @@ public class Main extends Application {
                         playSound(SWORD_SOUND);
                     } else if (cell.getItem() instanceof Elixir) {
                         playSound(ELIXIR_SOUND);
-                    }else if (cell.getItem() instanceof KeyClass) {
+                    } else if (cell.getItem() instanceof KeyClass) {
                         playSound(KEYS_SOUND);
                     }
                     int health = map.getPlayer().getHealth();
@@ -174,18 +201,25 @@ public class Main extends Application {
             System.out.println(e);
         }
     }
+
     public void changeMap() {
+        int healthPoint = map.getPlayer().getHealth();
+        Inventory inventoryList = map.getPlayer().getInventory();
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
                 if (cell.getActor() != null && cell.getType().equals(CellType.DOOR)) {
                     key = !key;
                     map = MapLoader.loadMap(key, "Forest");
+                    map.getPlayer().setHealth(healthPoint);
+                    map.getPlayer().setInventory(inventoryList);
                     context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                     refresh();
                     return;
-                } else if (cell.getActor() != null && cell.getType().equals(CellType.STAIRS)){
-                    map = MapLoader.loadMap(key,"Basement");
+                } else if (cell.getActor() != null && cell.getType().equals(CellType.STAIRS)) {
+                    map = MapLoader.loadMap(key, "Basement");
+                    map.getPlayer().setHealth(healthPoint);
+                    map.getPlayer().setInventory(inventoryList);
                     context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                     refresh();
                     return;
