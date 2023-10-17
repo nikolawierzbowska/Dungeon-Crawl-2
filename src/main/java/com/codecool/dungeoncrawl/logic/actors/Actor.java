@@ -47,6 +47,7 @@ public abstract class Actor implements Drawable {
         this.health = health;
     }
 
+
     public int getAttackStrength() {
         return attackStrength;
     }
@@ -54,6 +55,7 @@ public abstract class Actor implements Drawable {
     public void setAttackStrength(int attackStrength) {
         this.attackStrength = attackStrength;
     }
+
 
     public Cell getCell() {
         return cell;

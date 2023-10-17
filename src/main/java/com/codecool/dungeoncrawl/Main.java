@@ -13,20 +13,31 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
 import java.util.ArrayList;
 import java.util.List;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import java.io.File;
 
 public class Main extends Application {
     private Alert alert;
     private final List<Monster> monsters = new ArrayList<>();
-    GameMap map = MapLoader.loadMap();
+    public static boolean key = false;
+    private final String STEP_SOUND = "step.wav";
+    private final String ELIXIR_SOUND = "elixir.wav";
+    private final String FIGHT_SOUND = "fight.wav";
+    private final String SWORD_SOUND = "sword.wav";
+    private final String KEYS_SOUND = "keys.wav";
+    GameMap map = MapLoader.loadMap(key, "");
+
     Canvas canvas = new Canvas(
             map.getWidth() * Tiles.TILE_WIDTH,
             map.getHeight() * Tiles.TILE_WIDTH);
@@ -34,6 +45,7 @@ public class Main extends Application {
     Canvas canvasInventory = new Canvas(
             4 * Tiles.TILE_WIDTH,
             5 * Tiles.TILE_WIDTH);
+  
     GraphicsContext context = canvas.getGraphicsContext2D();
     GraphicsContext contextInventory = canvasInventory.getGraphicsContext2D();
     Label healthLabel = new Label();
@@ -41,34 +53,55 @@ public class Main extends Application {
     Label attackLabel = new Label("Attack:");
     Label playerAttackLabel = new Label();
     Button buttonPickUp = new Button("Pick Up");
+    Label labelName = new Label("Name:");
+    Button submit = new Button("Submit");
 
 
     public static void main(String[] args) {
         launch(args);
     }
+  
 
     @Override
     public void start(Stage primaryStage) {
         GridPane ui = new GridPane();
         ui.setPrefWidth(200);
-        ui.setPadding(new Insets(10));
+        ui.setPadding(new Insets(10, 15, 10, 15));
+        TextField name = new TextField();
+        name.setPromptText("Enter player's name.");
+        ui.add(labelName, 0, 0);
+        ui.add(name, 0, 1);
+        GridPane.setMargin(submit, new Insets(10, 0, 30, 0));
+        ui.add(submit, 0, 2);
+
         ui.add(new Label("Health:"), 0, 3);
         ui.add(healthLabel, 1, 3);
+ 
         ui.add(attackLabel, 0, 4);
         ui.add(playerAttackLabel, 1, 4);
         ui.add(inventoryLabel, 0, 6);
         ui.add(canvasInventory, 0, 7);
-        GridPane.setMargin(buttonPickUp, new Insets(70, 0, 10, 0));
+        GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
         ui.add(buttonPickUp, 0, 5);
-
-
-        buttonPickUp.setMaxSize(60,30);
+        canvasInventory.setHeight(400);
+      
         buttonPickUp.setFocusTraversable(false);
-
         buttonPickUp.setOnAction(actionEvent -> collectItems());
 
-        BorderPane borderPane = new BorderPane();
+        if (name.getText().isEmpty()) {
+            name.setFocusTraversable(false);
+            submit.setFocusTraversable(false);
+        }
+        name.setOnKeyPressed(actionEvent -> {
+            submit.setFocusTraversable(true);
+            submit.setDisable(false);
+        });
+        submit.setOnAction(actionEvent -> {
+            if (!name.getText().isEmpty())
+                submit.setDisable(true);
+        });
 
+        BorderPane borderPane = new BorderPane();
         borderPane.setCenter(canvas);
         borderPane.setRight(ui);
         borderPane.setStyle("-fx-border-color: black");
@@ -81,12 +114,14 @@ public class Main extends Application {
                 }
             }
         }
-
+      
         Scene scene = new Scene(borderPane);
         primaryStage.setScene(scene);
         refresh();
         scene.setOnKeyPressed(this::onKeyPressed);
+
         primaryStage.setOnCloseRequest(event -> stopMonsterMovementThreads());
+      
         primaryStage.setTitle("Dungeon Crawl");
         primaryStage.show();
     }
@@ -111,7 +146,10 @@ public class Main extends Application {
                 break;
         }
         checkIsGameOver();
+        playSound(STEP_SOUND);
+        changeMap();
     }
+  
 
     private void refresh() {
         context.setFill(Color.BLACK);
@@ -119,13 +157,10 @@ public class Main extends Application {
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
-
                 if (cell.getActor() != null) {
                     Tiles.drawTile(context, cell.getActor(), x, y);
                 } else if (cell.getItem() != null) {
                     Tiles.drawTile(context, cell.getItem(), x, y);
-
-
                 } else {
                     Tiles.drawTile(context, cell, x, y);
                 }
@@ -136,7 +171,8 @@ public class Main extends Application {
         inventoryLabel.setText("Inventory: ");
         int x = 0;
         for (Item item : map.getPlayer().getInventory().getItems()) {
-            int y= map.getPlayer().getInventory().getItems().indexOf(item);
+            int y = map.getPlayer().getInventory().getItems().indexOf(item);
+
             if (item instanceof Sword) {
                 Tiles.drawItemIcon(contextInventory, item, x, y);
             }
@@ -152,6 +188,7 @@ public class Main extends Application {
         }
     }
 
+  
     public void collectItems() {
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
@@ -215,6 +252,7 @@ public class Main extends Application {
         }
     }
 
+ 
     public void checkIsGameOver() {
         int playerHealth = map.getPlayer().getHealth();
         if (playerHealth <= 0) {

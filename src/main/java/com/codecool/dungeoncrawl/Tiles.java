@@ -1,5 +1,6 @@
 package com.codecool.dungeoncrawl;
 
+import com.codecool.dungeoncrawl.logic.CellType;
 import com.codecool.dungeoncrawl.logic.Drawable;
 import com.codecool.dungeoncrawl.logic.items.Item;
 import javafx.scene.canvas.GraphicsContext;
@@ -29,6 +30,7 @@ public class Tiles {
         tileMap.put("empty", new Tile(0, 0));
         tileMap.put("wall", new Tile(10, 17));
         tileMap.put("floor", new Tile(2, 0));
+        tileMap.put("stairs", new Tile(3, 6));
         tileMap.put("player", new Tile(27, 0));
         tileMap.put("skeleton", new Tile(29, 6));
         tileMap.put("elemental", new Tile(24, 8));
@@ -39,6 +41,9 @@ public class Tiles {
         tileMap.put("sword", new Tile(0, 29));
         tileMap.put("armour", new Tile(4, 23));
         tileMap.put("elixir", new Tile(26, 23));
+        tileMap.put("tree1", new Tile(0, 1));
+        tileMap.put("tree2", new Tile(3, 2));
+        tileMap.put("tree3", new Tile(4, 2));
     }
 
     public static void drawTile(GraphicsContext context, Drawable d, int x, int y) {
@@ -49,7 +54,7 @@ public class Tiles {
 
     public static void drawItemIcon(GraphicsContext contextInventory, Item item, int x, int y) {
         Tile tile = tileMap.get(item.getTileName());
-        contextInventory.drawImage(tileset, tile.x, tile.y, tile.w, tile.h,
+        context.drawImage(tileset, tile.x, tile.y, tile.w, tile.h,
                 x * TILE_WIDTH, y * TILE_WIDTH, INVENTORY_TILE_SIZE, INVENTORY_TILE_SIZE);
     }
 }

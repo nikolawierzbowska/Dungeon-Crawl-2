@@ -14,6 +14,10 @@ public class Player extends Actor {
         return inventory;
     }
 
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
+    }
+
     public String getTileName() {
         return "player";
     }
