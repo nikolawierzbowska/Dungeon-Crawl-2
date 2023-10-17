@@ -33,7 +33,7 @@ public class Main extends Application {
     public static boolean key = false;
     private final String STEP_SOUND = "step.wav";
     private final String ELIXIR_SOUND = "elixir.wav";
-    private final String FIGHT_SOUND = "fight.wav";
+    public static final String FIGHT_SOUND = "fight.wav";
     private final String SWORD_SOUND = "sword.wav";
     private final String KEYS_SOUND = "keys.wav";
     GameMap map = MapLoader.loadMap(key, "");
@@ -188,26 +188,37 @@ public class Main extends Application {
         }
     }
 
-  
+    private void addHealth(Cell cell) {
+        int health = map.getPlayer().getHealth();
+        health += cell.getItem().getVALUE();
+        map.getPlayer().setHealth(health);
+        healthLabel.setText("" + health);
+    }
+
     public void collectItems() {
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
 
                 if (cell.getActor() != null && cell.getItem() != null) {
-                    if (cell.getItem() instanceof Sword || cell.getItem() instanceof Armour) {
+                    if (cell.getItem() instanceof Armour) {
                         playSound(SWORD_SOUND);
-                    } else if (cell.getItem() instanceof Elixir) {
+                        addHealth(cell);
+                    }else if (cell.getItem() instanceof Elixir) {
                         playSound(ELIXIR_SOUND);
+                        addHealth(cell);
                     } else if (cell.getItem() instanceof KeyClass) {
                         playSound(KEYS_SOUND);
+                        addHealth(cell);
                     }
-                    int health = map.getPlayer().getHealth();
                     map.getPlayer().getInventory().addItem(cell.getItem());
 
-                    health += cell.getItem().getVALUE();
-                    map.getPlayer().setHealth(health);
-                    healthLabel.setText("" + health);
+                    if (cell.getItem() instanceof Sword) {
+                        playSound(SWORD_SOUND);
+                        int attackStrength = map.getPlayer().getAttackStrength();
+                        attackStrength+= cell.getItem().getVALUE();
+                        map.getPlayer().setAttackStrength(attackStrength);
+                    }
                     cell.setItem(null);
                     refresh();
                 }
@@ -215,7 +226,7 @@ public class Main extends Application {
         }
     }
 
-    private void playSound(String fileName) {
+    public  static void playSound(String fileName) {
         try {
             File wavFile = new File("src/main/resources/" + fileName);
             Clip clip = AudioSystem.getClip();
@@ -283,7 +294,7 @@ public class Main extends Application {
 
     private void resetGame() {
         GameStateManager.setGameIsOver(false);
-        map = MapLoader.loadMap();
+        map = MapLoader.loadMap(key, "");
         Player player = map.getPlayer();
         player.getInventory().clearInventory();
         alert.close();
