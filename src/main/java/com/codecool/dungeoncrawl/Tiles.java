@@ -33,6 +33,8 @@ public class Tiles {
         tileMap.put("skeleton", new Tile(29, 6));
         tileMap.put("elemental", new Tile(24, 8));
         tileMap.put("ghost", new Tile(27, 6));
+        tileMap.put("ghost_wall", new Tile(11, 18));
+        tileMap.put("smilingBob", new Tile(21, 26));
         tileMap.put("key", new Tile(17, 23));
         tileMap.put("sword", new Tile(0, 29));
         tileMap.put("armour", new Tile(4, 23));
@@ -45,9 +47,9 @@ public class Tiles {
                 x * TILE_WIDTH, y * TILE_WIDTH, TILE_WIDTH, TILE_WIDTH);
     }
 
-    public static void drawItemIcon(GraphicsContext context, Item item, int x, int y) {
+    public static void drawItemIcon(GraphicsContext contextInventory, Item item, int x, int y) {
         Tile tile = tileMap.get(item.getTileName());
-        context.drawImage(tileset, tile.x, tile.y, tile.w, tile.h,
-                x * TILE_WIDTH, y * TILE_WIDTH, INVENTORY_TILE_SIZE, INVENTORY_TILE_SIZE); //not sure method works...?
+        contextInventory.drawImage(tileset, tile.x, tile.y, tile.w, tile.h,
+                x * TILE_WIDTH, y * TILE_WIDTH, INVENTORY_TILE_SIZE, INVENTORY_TILE_SIZE);
     }
 }

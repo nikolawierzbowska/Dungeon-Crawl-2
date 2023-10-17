@@ -1,6 +1,7 @@
 package com.codecool.dungeoncrawl.logic;
 
 import com.codecool.dungeoncrawl.logic.actors.Actor;
+import com.codecool.dungeoncrawl.logic.actors.Monster;
 import com.codecool.dungeoncrawl.logic.items.Item;
 import static com.codecool.dungeoncrawl.logic.CellType.WALL;
 
@@ -10,14 +11,30 @@ public class Cell implements Drawable {
     private Actor actor;
     private Item item;
     private GameMap gameMap;
-    private Item item;
     private int x, y;
 
-    Cell(GameMap gameMap, int x, int y, CellType type) {
+    public Cell(GameMap gameMap, int x, int y, CellType type) {
         this.gameMap = gameMap;
         this.x = x;
         this.y = y;
         this.type = type;
+    }
+
+    public void removeMonster(Monster monster) {
+        if (monster != null) {
+            Cell cell = monster.getCell();
+            if (cell != null) {
+                cell.setActor(null);
+            }
+        }
+    }
+
+    public boolean hasItem() {
+        return item != null;
+    }
+
+    public boolean hasActor() {
+        return actor != null;
     }
 
     public CellType getType() {
@@ -32,13 +49,17 @@ public class Cell implements Drawable {
         this.actor = actor;
     }
 
-    public void setItem(Item item) { this.item = item; }
-
     public Actor getActor() {
         return actor;
     }
 
-    public Item getItem() { return item; }
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public Item getItem() {
+        return item;
+    }
 
     public Cell getNeighbor(int dx, int dy) {
         return gameMap.getCell(x + dx, y + dy);
@@ -49,14 +70,6 @@ public class Cell implements Drawable {
         return type.getTileName();
     }
 
-    public Item getItem() {
-        return item;
-    }
-
-    public void setItem(Item item) {
-        this.item = item;
-    }
-
     public int getX() {
         return x;
     }
@@ -65,9 +78,8 @@ public class Cell implements Drawable {
         return y;
     }
 
-
     public boolean isOccupied(){
         return this.actor != null || WALL.equals(this.type);
     }
- }
+}
 
