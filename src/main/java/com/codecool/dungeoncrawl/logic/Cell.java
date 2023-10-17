@@ -1,6 +1,7 @@
 package com.codecool.dungeoncrawl.logic;
 
 import com.codecool.dungeoncrawl.logic.actors.Actor;
+import com.codecool.dungeoncrawl.logic.actors.Monster;
 import com.codecool.dungeoncrawl.logic.items.Item;
 import static com.codecool.dungeoncrawl.logic.CellType.WALL;
 
@@ -17,6 +18,23 @@ public class Cell implements Drawable {
         this.x = x;
         this.y = y;
         this.type = type;
+    }
+
+    public void removeMonster(Monster monster) {
+        if (monster != null) {
+            Cell cell = monster.getCell();
+            if (cell != null) {
+                cell.setActor(null);
+            }
+        }
+    }
+
+    public boolean hasItem() {
+        return item != null;
+    }
+
+    public boolean hasActor() {
+        return actor != null;
     }
 
     public CellType getType() {

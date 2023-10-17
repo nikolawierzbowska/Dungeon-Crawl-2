@@ -1,12 +1,10 @@
 package com.codecool.dungeoncrawl.logic;
 
-import com.codecool.dungeoncrawl.logic.actors.Elemental;
-import com.codecool.dungeoncrawl.logic.actors.Ghost;
-import com.codecool.dungeoncrawl.logic.actors.Player;
-import com.codecool.dungeoncrawl.logic.actors.Skeleton;
+import com.codecool.dungeoncrawl.logic.actors.*;
 import com.codecool.dungeoncrawl.logic.items.*;
-
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class MapLoader {
@@ -17,7 +15,6 @@ public class MapLoader {
 
         }else if(key){
             is = MapLoader.class.getResourceAsStream("/map" + mapName + ".txt");
-
         }
         Scanner scanner = new Scanner(is);
         int width = scanner.nextInt();
@@ -29,6 +26,8 @@ public class MapLoader {
 
     private static GameMap drawGameMap(Scanner scanner, int width, int height) {
         GameMap map = new GameMap(width, height, CellType.EMPTY);
+        List<Skeleton> skeletons = new ArrayList<>();
+        List<Ghost> ghosts = new ArrayList<>();
         for (int y = 0; y < height; y++) {
             String line = scanner.nextLine();
             for (int x = 0; x < width; x++) {
@@ -58,15 +57,22 @@ public class MapLoader {
                             break;
                         case 's':
                             cell.setType(CellType.FLOOR);
-                            new Skeleton(cell);
+                            Skeleton skeleton = new Skeleton(cell, 10, 2, map);
+                            skeletons.add(skeleton);
                             break;
                         case 'g':
                             cell.setType(CellType.FLOOR);
-                            new Ghost(cell);
+                            Ghost ghost = new Ghost(cell, 12, 3, map);
+                            ghosts.add(ghost);
                             break;
                         case 'z':
                             cell.setType(CellType.FLOOR);
-                            new Elemental(cell);
+                            new Elemental(cell, 15, 5);
+                            break;
+                        case 'b':
+                            cell.setType(CellType.FLOOR);
+                            SmilingBob bob = new SmilingBob(cell, 18, 4);
+                            bob.startMovementThread();
                             break;
                         case '@':
                             cell.setType(CellType.FLOOR);
@@ -94,8 +100,14 @@ public class MapLoader {
                     }
                 }
             }
+
+        }
+        for (Skeleton skeleton : skeletons) {
+            skeleton.startMovementThread();
+        }
+        for (Ghost ghost : ghosts) {
+            ghost.startMovementThread();
         }
         return map;
     }
-
 }
