@@ -5,6 +5,8 @@ import com.codecool.dungeoncrawl.logic.Inventory;
 
 public class Player extends Actor {
     private Inventory inventory = new Inventory();
+    private String name;
+
 
     public Player(Cell cell) {
         super(cell);
@@ -21,5 +23,13 @@ public class Player extends Actor {
     public String getTileName() {
         return "player";
     }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 
 }

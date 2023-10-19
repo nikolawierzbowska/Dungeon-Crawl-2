@@ -35,6 +35,8 @@ public class Main extends Application {
     public static final String FIGHT_SOUND = "fight.wav";
     private final String SWORD_SOUND = "sword.wav";
     private final String KEYS_SOUND = "keys.wav";
+    public static final String CHEAT_SOUND = "/cheatOn.wav";
+
 
     GameMap map = MapLoader.loadMap(keyFlag, "");
     Canvas canvas = new Canvas(
@@ -93,6 +95,10 @@ public class Main extends Application {
 
         buttonExit.setOnAction(actionEvent -> Platform.exit());
         buttonPlayAgain.setOnAction(actionEvent -> resetGame() );
+
+        name.textProperty().addListener((observable, oldValue, newValue) -> {
+            map.getPlayer().setName(newValue);
+        });
 
         if (name.getText().isEmpty()) {
             name.setFocusTraversable(false);
