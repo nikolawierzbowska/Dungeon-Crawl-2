@@ -14,7 +14,10 @@ public class Ghost extends Monster {
     private int invisibleTimer = 0;
     private static final int INVISIBLE_DURATION = 3000;
     private Direction previousDirection = Direction.NONE;
-    public Ghost(Cell cell, int health, int attackStrength, GameMap map) { super(cell, 12, 3); }
+
+    public Ghost(Cell cell, int health, int attackStrength, GameMap map) {
+        super(cell, 12, 3);
+    }
 
     @Override
     public void startMovementThread() {

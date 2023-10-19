@@ -9,7 +9,6 @@ import static com.codecool.dungeoncrawl.Main.CHEAT_SOUND;
 import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
 
 
-
 public abstract class Actor implements Drawable {
     @Setter
     protected Cell cell;
@@ -21,7 +20,7 @@ public abstract class Actor implements Drawable {
         this.cell.setActor(this);
     }
 
-    public Actor(){
+    public Actor() {
     }
 
     public void setCell(Cell cell) {
@@ -80,12 +79,12 @@ public abstract class Actor implements Drawable {
         this.health = health;
     }
 
-    public int setValueOfHealth(){
-        return health =10;
+    public int setValueOfHealth() {
+        return health = 10;
     }
 
-    public int setValueOfAttack(){
-        return attackStrength =5;
+    public int setValueOfAttack() {
+        return attackStrength = 5;
     }
 
 
