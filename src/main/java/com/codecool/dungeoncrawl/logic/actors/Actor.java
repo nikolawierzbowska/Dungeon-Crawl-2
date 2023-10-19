@@ -5,7 +5,9 @@ import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.Drawable;
 import lombok.Setter;
 
+import static com.codecool.dungeoncrawl.Main.CHEAT_SOUND;
 import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
+
 
 
 public abstract class Actor implements Drawable {
@@ -29,6 +31,22 @@ public abstract class Actor implements Drawable {
 
     public void move(int dx, int dy) {
         Cell nextCell = cell.getNeighbor(dx, dy);
+
+        // Check for developer cheat
+        if (this instanceof Player) {
+            Player player = (Player) this;
+            String playerName = player.getName();
+            if (DeveloperName.isDeveloperName(playerName)) {
+                // cheat mode is on and play sound
+                Main.playSound(CHEAT_SOUND);
+                // Allow walking through walls
+                cell.setActor(null);
+                nextCell.setActor(this);
+                cell = nextCell;
+                return;  // Exit the method early to skip the rest of the logic
+            }
+        }
+
         if (!nextCell.isOccupied()) {
             cell.setActor(null);
             nextCell.setActor(this);
@@ -42,6 +60,7 @@ public abstract class Actor implements Drawable {
             this.damageReceived(monsterDamage);
         }
     }
+
 
     public void damageReceived(int damage) {
         int remainingHealth = this.getHealth();
