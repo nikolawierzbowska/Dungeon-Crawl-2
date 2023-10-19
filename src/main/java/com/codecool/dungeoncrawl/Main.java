@@ -20,6 +20,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -53,7 +54,9 @@ public class Main extends Application {
     Button buttonPickUp = new Button("Pick Up");
     Label labelName = new Label("Name:");
     TextField name = new TextField();
-    Button submit = new Button("Submit");
+    Button buttonSubmit = new Button("Submit");
+    Button buttonExit = new Button("EXIT");
+    Button buttonPlayAgain = new Button("Play again");
 
 
 
@@ -70,34 +73,38 @@ public class Main extends Application {
         name.setPromptText("Enter player's name.");
         ui.add(labelName, 0, 0);
         ui.add(name, 0, 1);
-        GridPane.setMargin(submit, new Insets(10, 0, 30, 0));
-        ui.add(submit, 0, 2);
-
+        GridPane.setMargin(buttonSubmit, new Insets(10, 0, 30, 0));
+        ui.add(buttonSubmit, 0, 2);
         ui.add(new Label("Health:"), 0, 3);
         ui.add(healthLabel, 1, 3);
- 
         ui.add(attackLabel, 0, 4);
         ui.add(playerAttackLabel, 1, 4);
         ui.add(inventoryLabel, 0, 6);
         ui.add(canvasInventory, 0, 7);
         GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
         ui.add(buttonPickUp, 0, 5);
+        ui.add(buttonExit, 0,20);
+        ui.add(buttonPlayAgain, 1,20);
         canvasInventory.setHeight(400);
-      
         buttonPickUp.setFocusTraversable(false);
+        buttonExit.setFocusTraversable(false);
+        buttonPlayAgain.setFocusTraversable(false);
         buttonPickUp.setOnAction(actionEvent -> collectItems());
+
+        buttonExit.setOnAction(actionEvent -> Platform.exit());
+        buttonPlayAgain.setOnAction(actionEvent -> resetGame() );
 
         if (name.getText().isEmpty()) {
             name.setFocusTraversable(false);
-            submit.setFocusTraversable(false);
+            buttonSubmit.setFocusTraversable(false);
         }
         name.setOnKeyPressed(actionEvent -> {
-            submit.setFocusTraversable(true);
-            submit.setDisable(false);
+            buttonSubmit.setFocusTraversable(true);
+            buttonSubmit.setDisable(false);
         });
-        submit.setOnAction(actionEvent -> {
+        buttonSubmit.setOnAction(actionEvent -> {
             if (!name.getText().isEmpty())
-                submit.setDisable(true);
+                buttonSubmit.setDisable(true);
         });
 
         BorderPane borderPane = new BorderPane();
@@ -113,14 +120,12 @@ public class Main extends Application {
                 }
             }
         }
-      
         Scene scene = new Scene(borderPane);
         primaryStage.setScene(scene);
         refresh();
         scene.setOnKeyPressed(this::onKeyPressed);
 
         primaryStage.setOnCloseRequest(event -> stopMonsterMovementThreads());
-      
         primaryStage.setTitle("Dungeon Crawl");
         primaryStage.show();
     }
@@ -204,14 +209,14 @@ public class Main extends Application {
 
     public void deleteKey() {
         List<Item> items = map.getPlayer().getInventory().getItems();
-        for (Item item : items) {
+        Iterator<Item> iterator = items.iterator();
+
+        while (iterator.hasNext()) {
+            Item item = iterator.next();
             if (item instanceof KeyClass) {
-                map.getPlayer().getInventory().deleteItem(item);
+                iterator.remove();
                 contextInventory.clearRect(0, 0, canvasInventory.getWidth(), canvasInventory.getHeight());
                 displayInventory();
-                System.out.println("usunieto");
-            } else {
-                System.out.println("not");
             }
         }
     }
@@ -329,7 +334,11 @@ public class Main extends Application {
         map.getPlayer().setHealth(map.getPlayer().setValueOfHealth());
         map.getPlayer().setAttackStrength(map.getPlayer().setValueOfAttack());
         name.clear();
-        alert.close();
+        if(alert== null) {
+            refresh();
+        }else {
+            alert.close();
+        }
         contextInventory.clearRect(0, 0, canvasInventory.getWidth(), canvasInventory.getHeight());
         refresh();
     }
