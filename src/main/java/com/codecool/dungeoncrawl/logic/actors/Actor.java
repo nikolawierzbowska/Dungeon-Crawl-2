@@ -3,16 +3,26 @@ package com.codecool.dungeoncrawl.logic.actors;
 import com.codecool.dungeoncrawl.Main;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.Drawable;
+import lombok.Setter;
 
 import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
 
 
 public abstract class Actor implements Drawable {
+    @Setter
     protected Cell cell;
     private int health = 10;
     private int attackStrength = 5;
 
     public Actor(Cell cell) {
+        this.cell = cell;
+        this.cell.setActor(this);
+    }
+
+    public Actor(){
+    }
+
+    public void setCell(Cell cell) {
         this.cell = cell;
         this.cell.setActor(this);
     }
@@ -67,7 +77,6 @@ public abstract class Actor implements Drawable {
     public void setAttackStrength(int attackStrength) {
         this.attackStrength = attackStrength;
     }
-
 
     public Cell getCell() {
         return cell;

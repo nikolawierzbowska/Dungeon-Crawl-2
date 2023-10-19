@@ -10,12 +10,12 @@ public class Player extends Actor {
         super(cell);
     }
 
-    public Inventory getInventory() {
-        return inventory;
+    public Player() {
+        super();
     }
 
-    public void setInventory(Inventory inventory) {
-        this.inventory = inventory;
+    public Inventory getInventory() {
+        return inventory;
     }
 
     public String getTileName() {

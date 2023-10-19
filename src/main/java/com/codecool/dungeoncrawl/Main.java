@@ -2,6 +2,7 @@ package com.codecool.dungeoncrawl;
 
 import com.codecool.dungeoncrawl.logic.*;
 import com.codecool.dungeoncrawl.logic.actors.Monster;
+import com.codecool.dungeoncrawl.logic.actors.Player;
 import com.codecool.dungeoncrawl.logic.items.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -36,16 +37,14 @@ public class Main extends Application {
     private final String SWORD_SOUND = "sword.wav";
     private final String KEYS_SOUND = "keys.wav";
 
-    GameMap map = MapLoader.loadMap(keyFlag, "");
-    Canvas canvas = new Canvas(
-            map.getWidth() * Tiles.TILE_WIDTH,
-            map.getHeight() * Tiles.TILE_WIDTH);
-
+    GameMap map;
+    Canvas canvas;
+    Player player;
     Canvas canvasInventory = new Canvas(
             4 * Tiles.TILE_WIDTH,
             5 * Tiles.TILE_WIDTH);
   
-    GraphicsContext context = canvas.getGraphicsContext2D();
+    GraphicsContext context;
     GraphicsContext contextInventory = canvasInventory.getGraphicsContext2D();
     Label healthLabel = new Label();
     Label inventoryLabel = new Label();
@@ -58,15 +57,14 @@ public class Main extends Application {
     Button buttonExit = new Button("EXIT");
     Button buttonPlayAgain = new Button("Play again");
 
-
-
     public static void main(String[] args) {
         launch(args);
+        
     }
-  
 
     @Override
     public void start(Stage primaryStage) {
+        init();
         GridPane ui = new GridPane();
         ui.setPrefWidth(200);
         ui.setPadding(new Insets(10, 15, 10, 15));
@@ -84,7 +82,7 @@ public class Main extends Application {
         GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
         ui.add(buttonPickUp, 0, 5);
         ui.add(buttonExit, 0,20);
-        ui.add(buttonPlayAgain, 1,20);
+        ui.add(buttonPlayAgain, 0,21);
         canvasInventory.setHeight(400);
         buttonPickUp.setFocusTraversable(false);
         buttonExit.setFocusTraversable(false);
@@ -130,22 +128,31 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+    public void init() {
+        player = new Player();
+        map = MapLoader.loadMap(keyFlag, "", player);
+        canvas = new Canvas(
+                map.getWidth() * Tiles.TILE_WIDTH,
+                map.getHeight() * Tiles.TILE_WIDTH);
+        context = canvas.getGraphicsContext2D();
+    }
+
     private void onKeyPressed(KeyEvent keyEvent) {
         switch (keyEvent.getCode()) {
             case UP:
-                map.getPlayer().move(0, -1);
+                player.move(0, -1);
                 refresh();
                 break;
             case DOWN:
-                map.getPlayer().move(0, 1);
+                player.move(0, 1);
                 refresh();
                 break;
             case LEFT:
-                map.getPlayer().move(-1, 0);
+                player.move(-1, 0);
                 refresh();
                 break;
             case RIGHT:
-                map.getPlayer().move(1, 0);
+                player.move(1, 0);
                 refresh();
                 break;
         }
@@ -168,8 +175,8 @@ public class Main extends Application {
                 }
             }
         }
-        healthLabel.setText("" +map.getPlayer().getHealth());
-        playerAttackLabel.setText("" + map.getPlayer().getAttackStrength());
+        healthLabel.setText("" +player.getHealth());
+        playerAttackLabel.setText("" + player.getAttackStrength());
         inventoryLabel.setText("Inventory: ");
         displayInventory();
         checkIsGameOver();
@@ -180,8 +187,8 @@ public class Main extends Application {
 
     public void displayInventory() {
         int x = 0;
-        for (Item item : map.getPlayer().getInventory().getItems()) {
-            int y = map.getPlayer().getInventory().getItems().indexOf(item);
+        for (Item item : player.getInventory().getItems()) {
+            int y = player.getInventory().getItems().indexOf(item);
             if (item instanceof Sword) {
                 Tiles.drawItemIcon(contextInventory, item, x, y);
             }
@@ -199,7 +206,7 @@ public class Main extends Application {
     }
 
     private boolean hasKey() {
-        for (Item item : map.getPlayer().getInventory().getItems()) {
+        for (Item item : player.getInventory().getItems()) {
             if (item instanceof KeyClass) {
                 return true;
             }
@@ -208,7 +215,7 @@ public class Main extends Application {
     }
 
     public void deleteKey() {
-        List<Item> items = map.getPlayer().getInventory().getItems();
+        List<Item> items = player.getInventory().getItems();
         Iterator<Item> iterator = items.iterator();
 
         while (iterator.hasNext()) {
@@ -223,9 +230,9 @@ public class Main extends Application {
 
 
     private void addHealth(Cell cell) {
-        int health = map.getPlayer().getHealth();
+        int health = player.getHealth();
         health += cell.getItem().getVALUE();
-        map.getPlayer().setHealth(health);
+        player.setHealth(health);
         healthLabel.setText("" + health);
     }
 
@@ -245,13 +252,13 @@ public class Main extends Application {
                         playSound(KEYS_SOUND);
                         addHealth(cell);
                     }
-                    map.getPlayer().getInventory().addItem(cell.getItem());
+                    player.getInventory().addItem(cell.getItem());
 
                     if (cell.getItem() instanceof Sword) {
                         playSound(SWORD_SOUND);
-                        int attackStrength = map.getPlayer().getAttackStrength();
+                        int attackStrength = player.getAttackStrength();
                         attackStrength+= cell.getItem().getVALUE();
-                        map.getPlayer().setAttackStrength(attackStrength);
+                        player.setAttackStrength(attackStrength);
                     }
                     cell.setItem(null);
                     refresh();
@@ -272,24 +279,18 @@ public class Main extends Application {
     }
 
     public void changeMap() {
-        int healthPoint = map.getPlayer().getHealth();
-        Inventory inventoryList = map.getPlayer().getInventory();
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
                 if (cell.getActor() != null && cell.getType().equals(CellType.DOOR) && hasKey()) {
                     keyFlag = !keyFlag;
-                    map = MapLoader.loadMap(keyFlag, "Forest");
-                    map.getPlayer().setHealth(healthPoint);
-                    map.getPlayer().setInventory(inventoryList);
+                    map = MapLoader.loadMap(keyFlag, "Forest", player);
                     context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                     refresh();
                     deleteKey();
                     return;
                 } else if (cell.getActor() != null && cell.getType().equals(CellType.STAIRS)) {
-                    map = MapLoader.loadMap(keyFlag, "Basement");
-                    map.getPlayer().setHealth(healthPoint);
-                    map.getPlayer().setInventory(inventoryList);
+                    map = MapLoader.loadMap(keyFlag, "Basement", player);
                     context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                     refresh();
                     return;
@@ -300,7 +301,7 @@ public class Main extends Application {
 
  
     public void checkIsGameOver() {
-        int playerHealth = map.getPlayer().getHealth();
+        int playerHealth = player.getHealth();
         if (playerHealth <= 0) {
             GameStateManager.setGameIsOver(true);
             stopMonsterMovementThreads();
@@ -329,10 +330,10 @@ public class Main extends Application {
 
     private void resetGame() {
         GameStateManager.setGameIsOver(false);
-        map = MapLoader.loadMap(keyFlag, "");
-        map.getPlayer().getInventory().clearInventory();
-        map.getPlayer().setHealth(map.getPlayer().setValueOfHealth());
-        map.getPlayer().setAttackStrength(map.getPlayer().setValueOfAttack());
+        map = MapLoader.loadMap(keyFlag, "", player);
+        player.getInventory().clearInventory();
+        player.setHealth(player.setValueOfHealth());
+        player.setAttackStrength(player.setValueOfAttack());
         name.clear();
         if(alert== null) {
             refresh();
