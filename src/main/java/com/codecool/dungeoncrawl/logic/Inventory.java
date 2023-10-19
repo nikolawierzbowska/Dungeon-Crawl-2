@@ -20,6 +20,10 @@ public class Inventory {
         items.add(item);
     }
 
+    public void deleteItem(Item item){
+        items.remove(item);
+    }
+
     public void clearInventory() {
         items.clear();
     }

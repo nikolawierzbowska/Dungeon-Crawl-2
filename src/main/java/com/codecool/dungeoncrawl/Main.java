@@ -2,7 +2,6 @@ package com.codecool.dungeoncrawl;
 
 import com.codecool.dungeoncrawl.logic.*;
 import com.codecool.dungeoncrawl.logic.actors.Monster;
-import com.codecool.dungeoncrawl.logic.actors.Player;
 import com.codecool.dungeoncrawl.logic.items.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -13,7 +12,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
@@ -22,6 +20,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -30,14 +29,14 @@ import java.io.File;
 public class Main extends Application {
     private Alert alert;
     private final List<Monster> monsters = new ArrayList<>();
-    public static boolean key = false;
+    public static boolean keyFlag = false;
     private final String STEP_SOUND = "step.wav";
     private final String ELIXIR_SOUND = "elixir.wav";
     public static final String FIGHT_SOUND = "fight.wav";
     private final String SWORD_SOUND = "sword.wav";
     private final String KEYS_SOUND = "keys.wav";
-    GameMap map = MapLoader.loadMap(key, "");
 
+    GameMap map = MapLoader.loadMap(keyFlag, "");
     Canvas canvas = new Canvas(
             map.getWidth() * Tiles.TILE_WIDTH,
             map.getHeight() * Tiles.TILE_WIDTH);
@@ -54,7 +53,11 @@ public class Main extends Application {
     Label playerAttackLabel = new Label();
     Button buttonPickUp = new Button("Pick Up");
     Label labelName = new Label("Name:");
-    Button submit = new Button("Submit");
+    TextField name = new TextField();
+    Button buttonSubmit = new Button("Submit");
+    Button buttonExit = new Button("EXIT");
+    Button buttonPlayAgain = new Button("Play again");
+
 
 
     public static void main(String[] args) {
@@ -67,38 +70,41 @@ public class Main extends Application {
         GridPane ui = new GridPane();
         ui.setPrefWidth(200);
         ui.setPadding(new Insets(10, 15, 10, 15));
-        TextField name = new TextField();
         name.setPromptText("Enter player's name.");
         ui.add(labelName, 0, 0);
         ui.add(name, 0, 1);
-        GridPane.setMargin(submit, new Insets(10, 0, 30, 0));
-        ui.add(submit, 0, 2);
-
+        GridPane.setMargin(buttonSubmit, new Insets(10, 0, 30, 0));
+        ui.add(buttonSubmit, 0, 2);
         ui.add(new Label("Health:"), 0, 3);
         ui.add(healthLabel, 1, 3);
- 
         ui.add(attackLabel, 0, 4);
         ui.add(playerAttackLabel, 1, 4);
         ui.add(inventoryLabel, 0, 6);
         ui.add(canvasInventory, 0, 7);
         GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
         ui.add(buttonPickUp, 0, 5);
+        ui.add(buttonExit, 0,20);
+        ui.add(buttonPlayAgain, 1,20);
         canvasInventory.setHeight(400);
-      
         buttonPickUp.setFocusTraversable(false);
+        buttonExit.setFocusTraversable(false);
+        buttonPlayAgain.setFocusTraversable(false);
         buttonPickUp.setOnAction(actionEvent -> collectItems());
+
+        buttonExit.setOnAction(actionEvent -> Platform.exit());
+        buttonPlayAgain.setOnAction(actionEvent -> resetGame() );
 
         if (name.getText().isEmpty()) {
             name.setFocusTraversable(false);
-            submit.setFocusTraversable(false);
+            buttonSubmit.setFocusTraversable(false);
         }
         name.setOnKeyPressed(actionEvent -> {
-            submit.setFocusTraversable(true);
-            submit.setDisable(false);
+            buttonSubmit.setFocusTraversable(true);
+            buttonSubmit.setDisable(false);
         });
-        submit.setOnAction(actionEvent -> {
+        buttonSubmit.setOnAction(actionEvent -> {
             if (!name.getText().isEmpty())
-                submit.setDisable(true);
+                buttonSubmit.setDisable(true);
         });
 
         BorderPane borderPane = new BorderPane();
@@ -114,14 +120,12 @@ public class Main extends Application {
                 }
             }
         }
-      
         Scene scene = new Scene(borderPane);
         primaryStage.setScene(scene);
         refresh();
         scene.setOnKeyPressed(this::onKeyPressed);
 
         primaryStage.setOnCloseRequest(event -> stopMonsterMovementThreads());
-      
         primaryStage.setTitle("Dungeon Crawl");
         primaryStage.show();
     }
@@ -145,9 +149,7 @@ public class Main extends Application {
                 refresh();
                 break;
         }
-        checkIsGameOver();
         playSound(STEP_SOUND);
-        changeMap();
     }
   
 
@@ -169,10 +171,17 @@ public class Main extends Application {
         healthLabel.setText("" +map.getPlayer().getHealth());
         playerAttackLabel.setText("" + map.getPlayer().getAttackStrength());
         inventoryLabel.setText("Inventory: ");
+        displayInventory();
+        checkIsGameOver();
+        changeMap();
+
+    }
+
+
+    public void displayInventory() {
         int x = 0;
         for (Item item : map.getPlayer().getInventory().getItems()) {
             int y = map.getPlayer().getInventory().getItems().indexOf(item);
-
             if (item instanceof Sword) {
                 Tiles.drawItemIcon(contextInventory, item, x, y);
             }
@@ -186,7 +195,32 @@ public class Main extends Application {
                 Tiles.drawItemIcon(contextInventory, item, x, y);
             }
         }
+
     }
+
+    private boolean hasKey() {
+        for (Item item : map.getPlayer().getInventory().getItems()) {
+            if (item instanceof KeyClass) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void deleteKey() {
+        List<Item> items = map.getPlayer().getInventory().getItems();
+        Iterator<Item> iterator = items.iterator();
+
+        while (iterator.hasNext()) {
+            Item item = iterator.next();
+            if (item instanceof KeyClass) {
+                iterator.remove();
+                contextInventory.clearRect(0, 0, canvasInventory.getWidth(), canvasInventory.getHeight());
+                displayInventory();
+            }
+        }
+    }
+
 
     private void addHealth(Cell cell) {
         int health = map.getPlayer().getHealth();
@@ -243,16 +277,17 @@ public class Main extends Application {
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
-                if (cell.getActor() != null && cell.getType().equals(CellType.DOOR)) {
-                    key = !key;
-                    map = MapLoader.loadMap(key, "Forest");
+                if (cell.getActor() != null && cell.getType().equals(CellType.DOOR) && hasKey()) {
+                    keyFlag = !keyFlag;
+                    map = MapLoader.loadMap(keyFlag, "Forest");
                     map.getPlayer().setHealth(healthPoint);
                     map.getPlayer().setInventory(inventoryList);
                     context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                     refresh();
+                    deleteKey();
                     return;
                 } else if (cell.getActor() != null && cell.getType().equals(CellType.STAIRS)) {
-                    map = MapLoader.loadMap(key, "Basement");
+                    map = MapLoader.loadMap(keyFlag, "Basement");
                     map.getPlayer().setHealth(healthPoint);
                     map.getPlayer().setInventory(inventoryList);
                     context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -294,10 +329,16 @@ public class Main extends Application {
 
     private void resetGame() {
         GameStateManager.setGameIsOver(false);
-        map = MapLoader.loadMap(key, "");
-        Player player = map.getPlayer();
-        player.getInventory().clearInventory();
-        alert.close();
+        map = MapLoader.loadMap(keyFlag, "");
+        map.getPlayer().getInventory().clearInventory();
+        map.getPlayer().setHealth(map.getPlayer().setValueOfHealth());
+        map.getPlayer().setAttackStrength(map.getPlayer().setValueOfAttack());
+        name.clear();
+        if(alert== null) {
+            refresh();
+        }else {
+            alert.close();
+        }
         contextInventory.clearRect(0, 0, canvasInventory.getWidth(), canvasInventory.getHeight());
         refresh();
     }
