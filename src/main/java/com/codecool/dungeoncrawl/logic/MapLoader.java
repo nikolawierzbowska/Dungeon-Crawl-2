@@ -2,6 +2,7 @@ package com.codecool.dungeoncrawl.logic;
 
 import com.codecool.dungeoncrawl.logic.actors.*;
 import com.codecool.dungeoncrawl.logic.items.*;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,7 @@ public class MapLoader {
         if (!key) {
             is = MapLoader.class.getResourceAsStream("/map" + mapName + ".txt");
 
-        }else if(key){
+        } else if (key) {
             is = MapLoader.class.getResourceAsStream("/map" + mapName + ".txt");
         }
         Scanner scanner = new Scanner(is);

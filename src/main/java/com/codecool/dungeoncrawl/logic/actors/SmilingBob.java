@@ -7,7 +7,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class SmilingBob extends Monster {
-    public SmilingBob(Cell cell, int health, int attackStrength) {super(cell, 18, 4);}
+    public SmilingBob(Cell cell, int health, int attackStrength) {
+        super(cell, 18, 4);
+    }
 
     @Override
     public void startMovementThread() {
