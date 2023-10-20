@@ -284,14 +284,16 @@ public class Main extends Application {
         }
     }
 
-    public static void playSound(String fileName) {
+    public static Clip playSound(String fileName) {
         try {
             File wavFile = new File("src/main/resources/" + fileName);
             Clip clip = AudioSystem.getClip();
             clip.open(AudioSystem.getAudioInputStream(wavFile));
             clip.start();
+            return clip; //return the clip to control it
         } catch (Exception e) {
             System.out.println(e);
+            return null; //in case of an error return null
         }
     }
 
