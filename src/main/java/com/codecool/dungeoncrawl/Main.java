@@ -20,6 +20,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,15 +38,13 @@ public class Main extends Application {
     private final String SWORD_SOUND = "sword.wav";
     private final String KEYS_SOUND = "keys.wav";
     public static final String CHEAT_SOUND = "/cheatOn.wav";
-
-
     GameMap map;
     Canvas canvas;
     Player player;
     Canvas canvasInventory = new Canvas(
             4 * Tiles.TILE_WIDTH,
             5 * Tiles.TILE_WIDTH);
-  
+
     GraphicsContext context;
     GraphicsContext contextInventory = canvasInventory.getGraphicsContext2D();
     Label healthLabel = new Label();
@@ -61,55 +60,16 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-        
     }
 
     @Override
     public void start(Stage primaryStage) {
-        init();
+        initialisation();
         GridPane ui = new GridPane();
-        ui.setPrefWidth(200);
-        ui.setPadding(new Insets(10, 15, 10, 15));
-        name.setPromptText("Enter player's name.");
-        ui.add(labelName, 0, 0);
-        ui.add(name, 0, 1);
-        GridPane.setMargin(buttonSubmit, new Insets(10, 0, 30, 0));
-        ui.add(buttonSubmit, 0, 2);
-        ui.add(new Label("Health:"), 0, 3);
-        ui.add(healthLabel, 1, 3);
-        ui.add(attackLabel, 0, 4);
-        ui.add(playerAttackLabel, 1, 4);
-        ui.add(inventoryLabel, 0, 6);
-        ui.add(canvasInventory, 0, 7);
-        GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
-        ui.add(buttonPickUp, 0, 5);
-        ui.add(buttonExit, 0,20);
-        ui.add(buttonPlayAgain, 0,21);
+        addElementsOnStage(ui);
+
         canvasInventory.setHeight(400);
-        buttonPickUp.setFocusTraversable(false);
-        buttonExit.setFocusTraversable(false);
-        buttonPlayAgain.setFocusTraversable(false);
-        buttonPickUp.setOnAction(actionEvent -> collectItems());
-
-        buttonExit.setOnAction(actionEvent -> Platform.exit());
-        buttonPlayAgain.setOnAction(actionEvent -> resetGame() );
-
-        name.textProperty().addListener((observable, oldValue, newValue) -> {
-            map.getPlayer().setName(newValue);
-        });
-
-        if (name.getText().isEmpty()) {
-            name.setFocusTraversable(false);
-            buttonSubmit.setFocusTraversable(false);
-        }
-        name.setOnKeyPressed(actionEvent -> {
-            buttonSubmit.setFocusTraversable(true);
-            buttonSubmit.setDisable(false);
-        });
-        buttonSubmit.setOnAction(actionEvent -> {
-            if (!name.getText().isEmpty())
-                buttonSubmit.setDisable(true);
-        });
+        addEventsForButtonsAndLabels();
 
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(canvas);
@@ -134,13 +94,64 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    public void init() {
+    public void initialisation () {
         player = new Player();
         map = MapLoader.loadMap(keyFlag, "", player);
         canvas = new Canvas(
                 map.getWidth() * Tiles.TILE_WIDTH,
                 map.getHeight() * Tiles.TILE_WIDTH);
         context = canvas.getGraphicsContext2D();
+    }
+
+
+    public void addElementsOnStage(GridPane ui){
+        ui.setPrefWidth(200);
+        ui.setPadding(new Insets(10, 15, 10, 15));
+        name.setPromptText("Enter player's name.");
+        ui.add(labelName, 0, 0);
+        ui.add(name, 0, 1);
+        GridPane.setMargin(buttonSubmit, new Insets(10, 0, 30, 0));
+        ui.add(buttonSubmit, 0, 2);
+        ui.add(new Label("Health:"), 0, 3);
+        ui.add(healthLabel, 1, 3);
+        ui.add(attackLabel, 0, 4);
+        ui.add(playerAttackLabel, 1, 4);
+        ui.add(inventoryLabel, 0, 6);
+        ui.add(canvasInventory, 0, 7);
+        GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
+        ui.add(buttonPickUp, 0, 5);
+        ui.add(buttonExit, 0, 20);
+        ui.add(buttonPlayAgain, 0, 21);
+
+    }
+
+    public void addEventsForButtonsAndLabels(){
+        buttonPickUp.setFocusTraversable(false);
+        buttonExit.setFocusTraversable(false);
+        buttonPlayAgain.setFocusTraversable(false);
+        buttonPickUp.setOnAction(actionEvent -> collectItems());
+
+        buttonExit.setOnAction(actionEvent -> Platform.exit());
+        buttonPlayAgain.setOnAction(actionEvent -> resetGame());
+
+        name.textProperty().addListener((observable, oldValue, newValue) -> {
+            map.getPlayer().setName(newValue);
+        });
+
+        if (name.getText().isEmpty()) {
+            name.setFocusTraversable(false);
+            buttonSubmit.setFocusTraversable(false);
+        }
+        name.setOnKeyPressed(actionEvent -> {
+            buttonSubmit.setFocusTraversable(true);
+            buttonSubmit.setDisable(false);
+        });
+        buttonSubmit.setOnAction(actionEvent -> {
+            if (!name.getText().isEmpty())
+                buttonSubmit.setDisable(true);
+        });
+
+
     }
 
     private void onKeyPressed(KeyEvent keyEvent) {
@@ -164,7 +175,7 @@ public class Main extends Application {
         }
         playSound(STEP_SOUND);
     }
-  
+
 
     private void refresh() {
         context.setFill(Color.BLACK);
@@ -181,8 +192,8 @@ public class Main extends Application {
                 }
             }
         }
-        healthLabel.setText("" +player.getHealth());
-        playerAttackLabel.setText("" + player.getAttackStrength());
+        healthLabel.setText(String.valueOf(player.getHealth()));
+        playerAttackLabel.setText(String.valueOf(player.getAttackStrength()));
         inventoryLabel.setText("Inventory: ");
         displayInventory();
         checkIsGameOver();
@@ -239,7 +250,7 @@ public class Main extends Application {
         int health = player.getHealth();
         health += cell.getItem().getVALUE();
         player.setHealth(health);
-        healthLabel.setText("" + health);
+        healthLabel.setText(String.valueOf(health));
     }
 
     public void collectItems() {
@@ -251,7 +262,7 @@ public class Main extends Application {
                     if (cell.getItem() instanceof Armour) {
                         playSound(SWORD_SOUND);
                         addHealth(cell);
-                    }else if (cell.getItem() instanceof Elixir) {
+                    } else if (cell.getItem() instanceof Elixir) {
                         playSound(ELIXIR_SOUND);
                         addHealth(cell);
                     } else if (cell.getItem() instanceof KeyClass) {
@@ -263,7 +274,7 @@ public class Main extends Application {
                     if (cell.getItem() instanceof Sword) {
                         playSound(SWORD_SOUND);
                         int attackStrength = player.getAttackStrength();
-                        attackStrength+= cell.getItem().getVALUE();
+                        attackStrength += cell.getItem().getVALUE();
                         player.setAttackStrength(attackStrength);
                     }
                     cell.setItem(null);
@@ -273,7 +284,7 @@ public class Main extends Application {
         }
     }
 
-    public  static Clip playSound(String fileName) {
+    public static Clip playSound(String fileName) {
         try {
             File wavFile = new File("src/main/resources/" + fileName);
             Clip clip = AudioSystem.getClip();
@@ -307,7 +318,7 @@ public class Main extends Application {
         }
     }
 
- 
+
     public void checkIsGameOver() {
         int playerHealth = player.getHealth();
         if (playerHealth <= 0) {
@@ -322,15 +333,10 @@ public class Main extends Application {
             ButtonType quitButton = new ButtonType("Quit");
 
             alert.getButtonTypes().setAll(playAgainButton, quitButton);
-
             alert.showAndWait().ifPresent(response -> {
                 switch (response.getText()) {
-                    case "Play Again":
-                        resetGame();
-                        break;
-                    case "Quit":
-                        Platform.exit();
-                        break;
+                    case "Play Again" -> resetGame();
+                    case "Quit" -> Platform.exit();
                 }
             });
         }
@@ -343,9 +349,9 @@ public class Main extends Application {
         player.setHealth(player.setValueOfHealth());
         player.setAttackStrength(player.setValueOfAttack());
         name.clear();
-        if(alert== null) {
+        if (alert == null) {
             refresh();
-        }else {
+        } else {
             alert.close();
         }
         contextInventory.clearRect(0, 0, canvasInventory.getWidth(), canvasInventory.getHeight());

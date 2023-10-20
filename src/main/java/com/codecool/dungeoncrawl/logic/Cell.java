@@ -79,7 +79,7 @@ public class Cell implements Drawable {
         return y;
     }
 
-    public boolean isOccupied(){
+    public boolean isOccupied() {
         return this.actor != null || WALL.equals(this.type) || TREE1.equals(this.type) || TREE2.equals(this.type) || TREE3.equals(this.type);
     }
 }
