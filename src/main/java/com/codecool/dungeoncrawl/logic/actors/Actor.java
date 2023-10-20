@@ -2,8 +2,11 @@ package com.codecool.dungeoncrawl.logic.actors;
 
 import com.codecool.dungeoncrawl.Main;
 import com.codecool.dungeoncrawl.logic.Cell;
+import com.codecool.dungeoncrawl.logic.CellType;
 import com.codecool.dungeoncrawl.logic.Drawable;
 import lombok.Setter;
+
+import javax.sound.sampled.Clip;
 
 import static com.codecool.dungeoncrawl.Main.CHEAT_SOUND;
 import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
@@ -15,6 +18,7 @@ public abstract class Actor implements Drawable {
     protected Cell cell;
     private int health = 10;
     private int attackStrength = 5;
+    private Clip cheatSound;
 
     public Actor(Cell cell) {
         this.cell = cell;
@@ -32,21 +36,30 @@ public abstract class Actor implements Drawable {
     public void move(int dx, int dy) {
         Cell nextCell = cell.getNeighbor(dx, dy);
 
-        // Check for developer cheat
+        // Check if the player is in cheat mode
         if (this instanceof Player) {
             Player player = (Player) this;
             String playerName = player.getName();
             if (DeveloperName.isDeveloperName(playerName)) {
-                // cheat mode is on and play sound
-                Main.playSound(CHEAT_SOUND);
-                // Allow walking through walls
+                // If the next cell is a wall, play the cheat sound
+                if (nextCell.getType() == CellType.WALL) {
+                    if (cheatSound != null) cheatSound.stop();
+                    cheatSound = Main.playSound(CHEAT_SOUND);
+                } else {
+                    if (cheatSound != null) {
+                        cheatSound.stop();
+                        cheatSound = null;
+                    }
+                }
+                // Allow free movement when in cheat mode
                 cell.setActor(null);
                 nextCell.setActor(this);
                 cell = nextCell;
-                return;  // Exit the method early to skip the rest of the logic
+                return;  // Exit early to skip the rest of the logic
             }
         }
 
+        // General movement logic
         if (!nextCell.isOccupied()) {
             cell.setActor(null);
             nextCell.setActor(this);
