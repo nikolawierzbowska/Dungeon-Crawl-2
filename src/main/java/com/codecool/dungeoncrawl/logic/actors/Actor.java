@@ -34,30 +34,7 @@ public abstract class Actor implements Drawable {
 
     public void move(int dx, int dy) {
         Cell nextCell = cell.getNeighbor(dx, dy);
-
-        // Check if the player is in cheat mode
-        if (this instanceof Player) {
-            Player player = (Player) this;
-            String playerName = player.getName();
-            if (DeveloperName.isDeveloperName(playerName)) {
-                // If the next cell is a wall, play the cheat sound
-                if (nextCell.getType() == CellType.WALL) {
-                    if (cheatSound != null) cheatSound.stop();
-                    cheatSound = Main.playSound(CHEAT_SOUND);
-                } else {
-                    if (cheatSound != null) {
-                        cheatSound.stop();
-                        cheatSound = null;
-                    }
-                }
-                // Allow free movement when in cheat mode
-                cell.setActor(null);
-                nextCell.setActor(this);
-                cell = nextCell;
-                return;  // Exit early to skip the rest of the logic
-            }
-        }
-
+      
         // General movement logic
         if (!nextCell.isOccupied()) {
             cell.setActor(null);
@@ -70,7 +47,20 @@ public abstract class Actor implements Drawable {
             monster.damageReceived(damage);
             int monsterDamage = monster.getAttackStrength();
             this.damageReceived(monsterDamage);
+        }else if (this instanceof Player) {
+            Player player = (Player) this;
+            String playerName = player.getName();
+            if (DeveloperName.isDeveloperName(playerName)) {
+                // cheat mode is on and play sound
+                Main.playSound(CHEAT_SOUND);
+                // Allow walking through walls
+                cell.setActor(null);
+                nextCell.setActor(this);
+                cell = nextCell;
+                  // Exit the method early to skip the rest of the logic
+            }
         }
+
     }
 
 
