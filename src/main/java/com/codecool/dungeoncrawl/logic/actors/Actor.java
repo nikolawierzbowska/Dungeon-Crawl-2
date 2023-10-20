@@ -2,8 +2,11 @@ package com.codecool.dungeoncrawl.logic.actors;
 
 import com.codecool.dungeoncrawl.Main;
 import com.codecool.dungeoncrawl.logic.Cell;
+import com.codecool.dungeoncrawl.logic.CellType;
 import com.codecool.dungeoncrawl.logic.Drawable;
 import lombok.Setter;
+
+import javax.sound.sampled.Clip;
 
 import static com.codecool.dungeoncrawl.Main.CHEAT_SOUND;
 import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
@@ -14,6 +17,7 @@ public abstract class Actor implements Drawable {
     protected Cell cell;
     private int health = 10;
     private int attackStrength = 5;
+    private Clip cheatSound;
 
     public Actor(Cell cell) {
         this.cell = cell;
@@ -30,9 +34,8 @@ public abstract class Actor implements Drawable {
 
     public void move(int dx, int dy) {
         Cell nextCell = cell.getNeighbor(dx, dy);
-
-//         Check for developer cheat
-
+      
+        // General movement logic
         if (!nextCell.isOccupied()) {
             cell.setActor(null);
             nextCell.setActor(this);
