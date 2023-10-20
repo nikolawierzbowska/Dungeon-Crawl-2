@@ -16,7 +16,7 @@ public class SmilingBob extends Monster {
     }
 
     @Override
-    public void startMovementThread() {
+    public void move() {
         movementExecutor = Executors.newScheduledThreadPool(1);
 
         Runnable movementTask = () -> {
@@ -25,19 +25,18 @@ public class SmilingBob extends Monster {
                 return;
             }
             Cell playerCell = findPlayerPosition();
-
+            System.out.println("bob's health: " + getHealth());
             if (playerCell.getActor() instanceof Player){
                 Direction playerDirection = calculatePlayerDirection(playerCell);
                 if (playerDirection != Direction.NONE) {
                     Cell nextCell = cell.getNeighbor(playerDirection.x, playerDirection.y);
-                    if (nextCell.getType() == CellType.FLOOR && !nextCell.isOccupied() && !nextCell.hasItem()) {
+                    if (nextCell.getType() == CellType.FLOOR && nextCell.getType() != CellType.WALL) {
                         cell.setActor(null);
                         nextCell.setActor(this);
                         cell = nextCell;
                     }
                 }
             }
-//            notifyMovementEventListeners();
         };
 
         movementExecutor.scheduleAtFixedRate(movementTask, 0, TIMER_STEP, TimeUnit.MILLISECONDS);
@@ -48,6 +47,8 @@ public class SmilingBob extends Monster {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
                 if (cell.getActor() instanceof Player) {
+                    System.out.println("tu jestem: " + cell.getX());
+                    System.out.println("tu jestem: " + cell.getY());
                     return cell;
                 }
             }
@@ -68,8 +69,7 @@ public class SmilingBob extends Monster {
         System.out.println("pozycjaBobX: " + monsterX);
         System.out.println("pozycjaBobY: " + monsterY);
 
-            return Direction.fromDelta(dx, dy);
-
+        return Direction.fromDelta(dx, dy);
 
     }
 

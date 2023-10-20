@@ -21,19 +21,6 @@ public abstract class Actor implements Drawable {
     }
 
     public void move(int dx, int dy) {
-        Cell nextCell = cell.getNeighbor(dx, dy);
-        if (!nextCell.isOccupied()) {
-            cell.setActor(null);
-            nextCell.setActor(this);
-            cell = nextCell;
-        } else if (nextCell.getActor() instanceof Monster) {
-            Monster monster = (Monster) nextCell.getActor();
-            int damage = this.getAttackStrength();
-            Main.playSound(FIGHT_SOUND);
-            monster.damageReceived(damage);
-            int monsterDamage = monster.getAttackStrength();
-            this.damageReceived(monsterDamage);
-        }
     }
 
     public void damageReceived(int damage) {

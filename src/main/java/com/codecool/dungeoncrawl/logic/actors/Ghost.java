@@ -11,12 +11,12 @@ import java.util.concurrent.TimeUnit;
 public class Ghost extends Monster {
     private boolean isVisible = true;
     private int invisibleTimer = 0;
-    private static final int INVISIBLE_DURATION = 3000;
-    private Direction previousDirection = Direction.NONE;
+    private static final int INVISIBLE_DURATION = 2000;
+    private Direction previousDirection;
     public Ghost(Cell cell, int health, int attackStrength, GameMap map) { super(cell, 12, 3); }
 
     @Override
-    public void startMovementThread() {
+    public void move() {
         movementExecutor = Executors.newScheduledThreadPool(1);
 
         Runnable movementTask = () -> {
@@ -30,7 +30,17 @@ public class Ghost extends Monster {
                 if (invisibleTimer <= 0) {
                     isVisible = true;
                     Direction oppositeDirection = previousDirection.opposite();
-                    standardMonsterMovement();
+                    int dx = oppositeDirection.x;
+                    int dy = oppositeDirection.y;
+                    Cell nextCell = cell.getNeighbor(dx, dy);
+
+                    if (nextCell.getType() == CellType.FLOOR && !nextCell.isOccupied() && !nextCell.hasItem()) {
+                        cell.setActor(null);
+                        nextCell.setActor(this);
+                        cell = nextCell;
+                    } else {
+                        return;
+                    }
                 }
             }
 
@@ -49,6 +59,7 @@ public class Ghost extends Monster {
                     nextCell.setActor(this);
                     cell = nextCell;
                     invisibleTimer = INVISIBLE_DURATION;
+                    previousDirection = randomDirection;
                     isVisible = false;
                 }
 

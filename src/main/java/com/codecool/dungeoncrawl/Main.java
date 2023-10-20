@@ -2,14 +2,10 @@ package com.codecool.dungeoncrawl;
 
 import com.codecool.dungeoncrawl.logic.*;
 import com.codecool.dungeoncrawl.logic.Cell;
-import com.codecool.dungeoncrawl.logic.actors.Elemental;
-import com.codecool.dungeoncrawl.logic.actors.Monster;
-import com.codecool.dungeoncrawl.logic.actors.MonsterMovementEvent;
-import com.codecool.dungeoncrawl.logic.actors.Player;
+import com.codecool.dungeoncrawl.logic.actors.*;
 import com.codecool.dungeoncrawl.logic.items.*;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -20,16 +16,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.io.File;
 
 
-public class Main extends Application implements EventHandler<MonsterMovementEvent> {
+public class Main extends Application implements MonsterEventListener {
     private Alert alert;
     private final List<Monster> monsters = new ArrayList<>();
     public static boolean keyFlag = false;
@@ -115,20 +109,6 @@ public class Main extends Application implements EventHandler<MonsterMovementEve
                 }
             }
         }
-
-//        for (Monster monster : monsters) {
-//            if (!(monster instanceof Elemental))
-//                monster.setMovementEventHandler(this);
-//        }
-
-        Iterator<Monster> iterator = monsters.iterator();
-        while (iterator.hasNext()) {
-            Monster monster = iterator.next();
-            if (!(monster instanceof Elemental)) {
-                monster.setMovementEventHandler(this);
-            }
-        }
-
 
         Scene scene = new Scene(borderPane);
         primaryStage.setScene(scene);
@@ -279,7 +259,6 @@ public class Main extends Application implements EventHandler<MonsterMovementEve
         int playerHealth = player.getHealth();
         if (playerHealth <= 0) {
             GameStateManager.setGameIsOver(true);
-            stopMonsterMovementThreads();
             alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Game Over");
             alert.setHeaderText("Game Over!");
@@ -293,9 +272,11 @@ public class Main extends Application implements EventHandler<MonsterMovementEve
             alert.showAndWait().ifPresent(response -> {
                 switch (response.getText()) {
                     case "Play Again":
+                        stopMonsterMovementThreads();
                         resetGame();
                         break;
                     case "Quit":
+                        stopMonsterMovementThreads();
                         Platform.exit();
                         break;
                 }
@@ -320,7 +301,7 @@ public class Main extends Application implements EventHandler<MonsterMovementEve
     }
 
     @Override
-    public void handle(MonsterMovementEvent event) {
+    public void onMonsterMovement() {
         refresh();
     }
 }
