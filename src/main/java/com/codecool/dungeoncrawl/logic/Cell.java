@@ -5,7 +5,6 @@ import com.codecool.dungeoncrawl.logic.actors.Monster;
 import com.codecool.dungeoncrawl.logic.items.Item;
 import static com.codecool.dungeoncrawl.logic.CellType.WALL;
 
-
 public class Cell implements Drawable {
     private CellType type;
     private Actor actor;

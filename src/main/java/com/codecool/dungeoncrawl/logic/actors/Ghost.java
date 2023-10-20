@@ -8,7 +8,6 @@ import com.codecool.dungeoncrawl.logic.GameMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-
 public class Ghost extends Monster {
     private boolean isVisible = true;
     private int invisibleTimer = 0;

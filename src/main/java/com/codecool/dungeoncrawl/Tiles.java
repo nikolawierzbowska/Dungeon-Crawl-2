@@ -54,7 +54,7 @@ public class Tiles {
 
     public static void drawItemIcon(GraphicsContext contextInventory, Item item, int x, int y) {
         Tile tile = tileMap.get(item.getTileName());
-        context.drawImage(tileset, tile.x, tile.y, tile.w, tile.h,
+        contextInventory.drawImage(tileset, tile.x, tile.y, tile.w, tile.h,
                 x * TILE_WIDTH, y * TILE_WIDTH, INVENTORY_TILE_SIZE, INVENTORY_TILE_SIZE);
     }
 }

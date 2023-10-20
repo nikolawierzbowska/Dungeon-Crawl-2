@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MapLoader {
-    public static GameMap loadMap(boolean key, String mapName) {
+    public static GameMap loadMap(boolean key, String mapName, Player player) {
         InputStream is = null;
         if (!key) {
             is = MapLoader.class.getResourceAsStream("/map" + mapName + ".txt");
@@ -21,10 +21,10 @@ public class MapLoader {
         int height = scanner.nextInt();
         scanner.nextLine();
 
-        return drawGameMap(scanner, width, height);
+        return drawGameMap(scanner, width, height, player);
     }
 
-    private static GameMap drawGameMap(Scanner scanner, int width, int height) {
+    private static GameMap drawGameMap(Scanner scanner, int width, int height, Player player) {
         GameMap map = new GameMap(width, height, CellType.EMPTY);
         List<Skeleton> skeletons = new ArrayList<>();
         List<Ghost> ghosts = new ArrayList<>();
@@ -71,12 +71,12 @@ public class MapLoader {
                             break;
                         case 'b':
                             cell.setType(CellType.FLOOR);
-                            SmilingBob bob = new SmilingBob(cell, 18, 4);
+                            SmilingBob bob = new SmilingBob(cell, 18, 4, map);
                             bob.startMovementThread();
                             break;
                         case '@':
                             cell.setType(CellType.FLOOR);
-                            Player player = new Player(cell);
+                            player.setCell(cell);
                             map.setPlayer(player);
                             break;
                         case 'a':
