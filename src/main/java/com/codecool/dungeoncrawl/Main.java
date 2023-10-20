@@ -320,7 +320,7 @@ public class Main extends Application implements EventHandler<MonsterMovementEve
     }
 
     @Override
-    public void handle(MonsterMovementEvent MONSTER_MOVEMENT_EVENT) {
+    public void handle(MonsterMovementEvent event) {
         refresh();
     }
 }
