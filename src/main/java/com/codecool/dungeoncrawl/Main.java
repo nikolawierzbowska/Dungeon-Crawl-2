@@ -64,18 +64,50 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        initializeGame();
+        GridPane ui = createUI();
+        setupCanvasInventory();
+        setupButtonAndLabelEvents();
+
+        BorderPane borderPane = createBorderPane(ui);
+        extractMonstersFromMap();
+
+        Scene scene = new Scene(borderPane);
+        configureScene(primaryStage, scene);
+
+        setupKeyPressEventHandler(scene);
+        setupCloseRequestHandler(primaryStage);
+
+        showPrimaryStage(primaryStage);
+    }
+
+    private void initializeGame() {
         initialisation();
+    }
+
+    private GridPane createUI() {
         GridPane ui = new GridPane();
         addElementsOnStage(ui);
+        return ui;
+    }
 
+    private void setupCanvasInventory() {
         canvasInventory.setHeight(400);
-        addEventsForButtonsAndLabels();
+    }
 
+    private void setupButtonAndLabelEvents() {
+        addEventsForButtonsAndLabels();
+    }
+
+    private BorderPane createBorderPane(GridPane ui) {
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(canvas);
         borderPane.setRight(ui);
         borderPane.setStyle("-fx-border-color: black");
+        return borderPane;
+    }
 
+    private void extractMonstersFromMap() {
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
@@ -84,12 +116,22 @@ public class Main extends Application {
                 }
             }
         }
-        Scene scene = new Scene(borderPane);
+    }
+
+    private void configureScene(Stage primaryStage, Scene scene) {
         primaryStage.setScene(scene);
         refresh();
-        scene.setOnKeyPressed(this::onKeyPressed);
+    }
 
+    private void setupKeyPressEventHandler(Scene scene) {
+        scene.setOnKeyPressed(this::onKeyPressed);
+    }
+
+    private void setupCloseRequestHandler(Stage primaryStage) {
         primaryStage.setOnCloseRequest(event -> stopMonsterMovementThreads());
+    }
+
+    private void showPrimaryStage(Stage primaryStage) {
         primaryStage.setTitle("Dungeon Crawl");
         primaryStage.show();
     }

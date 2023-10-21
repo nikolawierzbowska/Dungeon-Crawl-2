@@ -80,7 +80,11 @@ public class Cell implements Drawable {
     }
 
     public boolean isOccupied() {
-        return this.actor != null || WALL.equals(this.type) || TREE1.equals(this.type) || TREE2.equals(this.type) || TREE3.equals(this.type);
+        return this.actor != null || WALL.equals(this.type)
+                || TREE1.equals(this.type)
+                || TREE2.equals(this.type)
+                || TREE3.equals(this.type)
+                || GATE.equals(this.type);
     }
 }
 
