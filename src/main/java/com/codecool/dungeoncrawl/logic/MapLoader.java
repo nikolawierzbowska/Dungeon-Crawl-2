@@ -75,8 +75,8 @@ public class MapLoader {
                             break;
                         case 'b':
                             cell.setType(CellType.FLOOR);
-                            SmilingBob bob = new SmilingBob(cell, 18, 4);
-                            bob.startMovementThread();
+                            SmilingBob bob = new SmilingBob(cell, 18, 4, map);
+                            bob.move();
                             break;
                         case '@':
                             cell.setType(CellType.FLOOR);
@@ -111,10 +111,10 @@ public class MapLoader {
 
         }
         for (Skeleton skeleton : skeletons) {
-            skeleton.startMovementThread();
+            skeleton.move();
         }
         for (Ghost ghost : ghosts) {
-            ghost.startMovementThread();
+            ghost.move();
         }
         return map;
     }
