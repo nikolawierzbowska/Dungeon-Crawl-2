@@ -10,13 +10,17 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+
 import javafx.scene.control.*;
+
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -32,9 +36,11 @@ public class Main extends Application implements MonsterEventListener {
     public static final String FIGHT_SOUND = "fight.wav";
     private final String SWORD_SOUND = "sword.wav";
     private final String KEYS_SOUND = "keys.wav";
+
+    public static final String CHEAT_SOUND = "/cheatOn.wav";
     GameMap map;
-    Player player;
     Canvas canvas;
+    Player player;
 
     Canvas canvasInventory = new Canvas(
             4 * Tiles.TILE_WIDTH,
@@ -48,60 +54,61 @@ public class Main extends Application implements MonsterEventListener {
     Label playerAttackLabel = new Label();
     Button buttonPickUp = new Button("Pick Up");
     Label labelName = new Label("Name:");
-    Button submit = new Button("Submit");
-
+    TextField name = new TextField();
+    Button buttonSubmit = new Button("Submit");
+    Button buttonExit = new Button("EXIT");
+    Button buttonPlayAgain = new Button("Play again");
+    
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
-        init();
+        initializeGame();
+        GridPane ui = createUI();
+        setupCanvasInventory();
+        setupButtonAndLabelEvents();
+
+        BorderPane borderPane = createBorderPane(ui);
+        extractMonstersFromMap();
+
+        Scene scene = new Scene(borderPane);
+        configureScene(primaryStage, scene);
+
+        setupKeyPressEventHandler(scene);
+        setupCloseRequestHandler(primaryStage);
+
+        showPrimaryStage(primaryStage);
+    }
+
+    private void initializeGame() {
+        initialisation();
+    }
+
+    private GridPane createUI() {
         GridPane ui = new GridPane();
-        ui.setPrefWidth(200);
-        ui.setPadding(new Insets(10, 15, 10, 15));
-        TextField name = new TextField();
-        name.setPromptText("Enter player's name.");
-        ui.add(labelName, 0, 0);
-        ui.add(name, 0, 1);
-        GridPane.setMargin(submit, new Insets(10, 0, 30, 0));
-        ui.add(submit, 0, 2);
+        addElementsOnStage(ui);
+        return ui;
+    }
 
-        ui.add(new Label("Health:"), 0, 3);
-        ui.add(healthLabel, 1, 3);
-        ui.add(attackLabel, 0, 4);
-        ui.add(playerAttackLabel, 1, 4);
-        ui.add(inventoryLabel, 0, 6);
-        ui.add(canvasInventory, 0, 7);
-        GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
-        ui.add(buttonPickUp, 0, 5);
+    private void setupCanvasInventory() {
         canvasInventory.setHeight(400);
+    }
 
-        buttonPickUp.setFocusTraversable(false);
+    private void setupButtonAndLabelEvents() {
+        addEventsForButtonsAndLabels();
+    }
 
-        buttonPickUp.setOnAction(actionEvent -> collectItems());
-
-//        TODO wywołać event listener do movementThread
-
-        if (name.getText().isEmpty()) {
-            name.setFocusTraversable(false);
-            submit.setFocusTraversable(false);
-        }
-        name.setOnKeyPressed(actionEvent -> {
-            submit.setFocusTraversable(true);
-            submit.setDisable(false);
-        });
-        submit.setOnAction(actionEvent -> {
-            if (!name.getText().isEmpty())
-                submit.setDisable(true);
-        });
-
+    private BorderPane createBorderPane(GridPane ui) {
         BorderPane borderPane = new BorderPane();
-
         borderPane.setCenter(canvas);
         borderPane.setRight(ui);
         borderPane.setStyle("-fx-border-color: black");
+        return borderPane;
+    }
 
+    private void extractMonstersFromMap() {
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
@@ -110,17 +117,27 @@ public class Main extends Application implements MonsterEventListener {
                 }
             }
         }
+    }
 
-        Scene scene = new Scene(borderPane);
+    private void configureScene(Stage primaryStage, Scene scene) {
         primaryStage.setScene(scene);
         refresh();
+    }
+
+    private void setupKeyPressEventHandler(Scene scene) {
         scene.setOnKeyPressed(this::onKeyPressed);
+    }
+
+    private void setupCloseRequestHandler(Stage primaryStage) {
         primaryStage.setOnCloseRequest(event -> stopMonsterMovementThreads());
+    }
+
+    private void showPrimaryStage(Stage primaryStage) {
         primaryStage.setTitle("Dungeon Crawl");
         primaryStage.show();
     }
 
-    public void init() {
+    public void initialisation () {
         player = new Player();
         map = MapLoader.loadMap(keyFlag, "", player);
         canvas = new Canvas(
@@ -128,6 +145,60 @@ public class Main extends Application implements MonsterEventListener {
                 map.getHeight() * Tiles.TILE_WIDTH);
         context = canvas.getGraphicsContext2D();
     }
+
+
+    public void addElementsOnStage(GridPane ui){
+        ui.setPrefWidth(200);
+        ui.setPadding(new Insets(10, 15, 10, 15));
+        name.setPromptText("Enter player's name.");
+        ui.add(labelName, 0, 0);
+        ui.add(name, 0, 1);
+        GridPane.setMargin(buttonSubmit, new Insets(10, 0, 30, 0));
+        ui.add(buttonSubmit, 0, 2);
+        ui.add(new Label("Health:"), 0, 3);
+        ui.add(healthLabel, 1, 3);
+        ui.add(attackLabel, 0, 4);
+        ui.add(playerAttackLabel, 1, 4);
+        ui.add(inventoryLabel, 0, 6);
+        ui.add(canvasInventory, 0, 7);
+        GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
+        ui.add(buttonPickUp, 0, 5);
+
+        canvasInventory.setHeight(400);
+
+       
+        ui.add(buttonExit, 0, 20);
+        ui.add(buttonPlayAgain, 0, 21);
+
+    }
+
+    public void addEventsForButtonsAndLabels(){
+        buttonPickUp.setFocusTraversable(false);
+        buttonExit.setFocusTraversable(false);
+        buttonPlayAgain.setFocusTraversable(false);
+        buttonPickUp.setOnAction(actionEvent -> collectItems());
+
+        buttonExit.setOnAction(actionEvent -> Platform.exit());
+        buttonPlayAgain.setOnAction(actionEvent -> resetGame());
+
+        name.textProperty().addListener((observable, oldValue, newValue) -> {
+            map.getPlayer().setName(newValue);
+        });
+
+
+        if (name.getText().isEmpty()) {
+            name.setFocusTraversable(false);
+            buttonSubmit.setFocusTraversable(false);
+        }
+        name.setOnKeyPressed(actionEvent -> {
+            buttonSubmit.setFocusTraversable(true);
+            buttonSubmit.setDisable(false);
+        });
+        buttonSubmit.setOnAction(actionEvent -> {
+            if (!name.getText().isEmpty())
+                buttonSubmit.setDisable(true);
+        });
+
 
     private void onKeyPressed(KeyEvent keyEvent) {
         switch (keyEvent.getCode()) {
@@ -148,9 +219,7 @@ public class Main extends Application implements MonsterEventListener {
                 refresh();
                 break;
         }
-        checkIsGameOver();
         playSound(STEP_SOUND);
-        changeMap();
     }
 
     private void refresh() {
@@ -168,13 +237,22 @@ public class Main extends Application implements MonsterEventListener {
                 }
             }
         }
-        healthLabel.setText("" + player.getHealth());
-        playerAttackLabel.setText("" + player.getAttackStrength());
+
+             
+
+        healthLabel.setText(String.valueOf(player.getHealth()));
+        playerAttackLabel.setText(String.valueOf(player.getAttackStrength()));
         inventoryLabel.setText("Inventory: ");
+        displayInventory();
+        checkIsGameOver();
+        changeMap();
+
+        }
+
+    public void displayInventory() {
         int x = 0;
         for (Item item : player.getInventory().getItems()) {
             int y = player.getInventory().getItems().indexOf(item);
-
             if (item instanceof Sword) {
                 Tiles.drawItemIcon(contextInventory, item, x, y);
             }
@@ -188,14 +266,40 @@ public class Main extends Application implements MonsterEventListener {
                 Tiles.drawItemIcon(contextInventory, item, x, y);
             }
         }
+
     }
+
+    private boolean hasKey() {
+        for (Item item : player.getInventory().getItems()) {
+            if (item instanceof KeyClass) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void deleteKey() {
+        List<Item> items = player.getInventory().getItems();
+        Iterator<Item> iterator = items.iterator();
+
+        while (iterator.hasNext()) {
+            Item item = iterator.next();
+            if (item instanceof KeyClass) {
+                iterator.remove();
+                contextInventory.clearRect(0, 0, canvasInventory.getWidth(), canvasInventory.getHeight());
+                displayInventory();
+            }
+        }
+    }
+
 
     private void addHealth(Cell cell) {
         int health = player.getHealth();
         health += cell.getItem().getVALUE();
         player.setHealth(health);
-        healthLabel.setText("" + health);
+        healthLabel.setText(String.valueOf(health));
     }
+
 
     public void collectItems() {
         for (int x = 0; x < map.getWidth(); x++) {
@@ -207,6 +311,7 @@ public class Main extends Application implements MonsterEventListener {
                         playSound(SWORD_SOUND);
                         addHealth(cell);
                     }else if (cell.getItem() instanceof Elixir) {
+
                         playSound(ELIXIR_SOUND);
                         addHealth(cell);
                     } else if (cell.getItem() instanceof KeyClass) {
@@ -228,28 +333,36 @@ public class Main extends Application implements MonsterEventListener {
         }
     }
 
-    public  static void playSound(String fileName) {
+
+    public static Clip playSound(String fileName) {
         try {
             File wavFile = new File("src/main/resources/" + fileName);
             Clip clip = AudioSystem.getClip();
             clip.open(AudioSystem.getAudioInputStream(wavFile));
             clip.start();
+            return clip; //return the clip to control it
         } catch (Exception e) {
             System.out.println(e);
+            return null; //in case of an error return null
         }
     }
-//TODO debug playera
+
     public void changeMap() {
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Cell cell = map.getCell(x, y);
-                if (cell.getActor() != null && cell.getType().equals(CellType.DOOR)) {
-                    stopMonsterMovementThreads();
+                if (cell.getActor() != null && cell.getType().equals(CellType.DOOR) && hasKey()) {
                     keyFlag = !keyFlag;
                     map = MapLoader.loadMap(keyFlag, "Forest", player);
+                    context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                    refresh();
+                    deleteKey();
+                    return;
                 } else if (cell.getActor() != null && cell.getType().equals(CellType.STAIRS)) {
-                    stopMonsterMovementThreads();
                     map = MapLoader.loadMap(keyFlag, "Basement", player);
+                    context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                    refresh();
+                    return;
                 }
             }
         }
@@ -269,7 +382,6 @@ public class Main extends Application implements MonsterEventListener {
             ButtonType quitButton = new ButtonType("Quit");
 
             alert.getButtonTypes().setAll(playAgainButton, quitButton);
-
             alert.showAndWait().ifPresent(response -> {
                 switch (response.getText()) {
                     case "Play Again":
@@ -280,20 +392,12 @@ public class Main extends Application implements MonsterEventListener {
                         stopMonsterMovementThreads();
                         Platform.exit();
                         break;
+
                 }
             });
         }
     }
 
-//    private void resetGame() {
-//        GameStateManager.setGameIsOver(false);
-//        map = MapLoader.loadMap(keyFlag, "", player);
-//        player.getInventory().clearInventory();
-//        player.setHealth(player.getHealth());
-//        alert.close();
-//        contextInventory.clearRect(0, 0, canvasInventory.getWidth(), canvasInventory.getHeight());
-//        refresh();
-//    }
 
     private void resetGame() {
         GameStateManager.setGameIsOver(false);
@@ -301,7 +405,9 @@ public class Main extends Application implements MonsterEventListener {
         player.getInventory().clearInventory();
         player.setHealth(player.setValueOfHealth());
         player.setAttackStrength(player.setValueOfAttack());
-//        name.clear();
+
+        name.clear();
+
         if (alert == null) {
             refresh();
         } else {
@@ -318,8 +424,5 @@ public class Main extends Application implements MonsterEventListener {
         }
     }
 
-    @Override
-    public void onMonsterMovement() {
-        refresh();
-    }
+   
 }

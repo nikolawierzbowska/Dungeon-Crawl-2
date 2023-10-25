@@ -3,10 +3,15 @@ package com.codecool.dungeoncrawl.logic.actors;
 import com.codecool.dungeoncrawl.Main;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.Drawable;
+import lombok.Setter;
+
+import static com.codecool.dungeoncrawl.Main.CHEAT_SOUND;
+import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
 
 import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
 
 public abstract class Actor implements Drawable {
+    @Setter
     protected Cell cell;
     private int health = 10;
     private int attackStrength = 5;
@@ -16,21 +21,23 @@ public abstract class Actor implements Drawable {
         this.cell.setActor(this);
     }
 
-    public Actor(){
+    public Actor() {
+    }
 
+    public void setCell(Cell cell) {
+        this.cell = cell;
+        this.cell.setActor(this);
     }
 
     public void move(int dx, int dy) {
+
     }
+
 
     public void damageReceived(int damage) {
         int remainingHealth = this.getHealth();
         remainingHealth -= damage;
         this.setHealth(remainingHealth);
-
-//        if (remainingHealth <= 0) {
-//            this.getCell().setActor(null);
-//        }
     }
 
     public int getHealth() {
@@ -49,6 +56,7 @@ public abstract class Actor implements Drawable {
         return attackStrength = 5;
     }
 
+
     public int getAttackStrength() {
         return attackStrength;
     }
@@ -57,10 +65,6 @@ public abstract class Actor implements Drawable {
         this.attackStrength = attackStrength;
     }
 
-    public void setCell(Cell cell) {
-        this.cell = cell;
-        this.cell.setActor(this);
-    }
 
     public Cell getCell() {
         return cell;

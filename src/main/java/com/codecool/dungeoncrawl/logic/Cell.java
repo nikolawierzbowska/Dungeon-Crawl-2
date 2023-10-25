@@ -3,7 +3,8 @@ package com.codecool.dungeoncrawl.logic;
 import com.codecool.dungeoncrawl.logic.actors.Actor;
 import com.codecool.dungeoncrawl.logic.actors.Monster;
 import com.codecool.dungeoncrawl.logic.items.Item;
-import static com.codecool.dungeoncrawl.logic.CellType.WALL;
+
+import static com.codecool.dungeoncrawl.logic.CellType.*;
 
 public class Cell implements Drawable {
     private CellType type;
@@ -77,8 +78,12 @@ public class Cell implements Drawable {
         return y;
     }
 
-    public boolean isOccupied(){
-        return this.actor != null || WALL.equals(this.type);
+    public boolean isOccupied() {
+        return this.actor != null || WALL.equals(this.type)
+                || TREE1.equals(this.type)
+                || TREE2.equals(this.type)
+                || TREE3.equals(this.type)
+                || GATE.equals(this.type);
     }
 }
 

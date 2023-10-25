@@ -2,6 +2,7 @@ package com.codecool.dungeoncrawl.logic;
 
 import com.codecool.dungeoncrawl.logic.actors.*;
 import com.codecool.dungeoncrawl.logic.items.*;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,7 @@ public class MapLoader {
         if (!key) {
             is = MapLoader.class.getResourceAsStream("/map" + mapName + ".txt");
 
-        }else if(key){
+        } else if (key) {
             is = MapLoader.class.getResourceAsStream("/map" + mapName + ".txt");
         }
         Scanner scanner = new Scanner(is);
@@ -51,6 +52,9 @@ public class MapLoader {
                             break;
                         case '.':
                             cell.setType(CellType.FLOOR);
+                            break;
+                        case 'G':
+                            cell.setType(CellType.GATE);
                             break;
                         case '%':
                             cell.setType(CellType.STAIRS);
@@ -94,6 +98,10 @@ public class MapLoader {
                         case 'k':
                             cell.setType(CellType.FLOOR);
                             new KeyClass(cell);
+                            break;
+                        case 'D':
+                            cell.setType(CellType.DOOR);
+                            new Door(cell);
                             break;
                         default:
                             throw new RuntimeException("Unrecognized character: '" + line.charAt(x) + "'");

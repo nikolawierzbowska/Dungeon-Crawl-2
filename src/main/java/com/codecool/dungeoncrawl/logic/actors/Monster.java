@@ -33,7 +33,8 @@ public abstract class Monster extends Actor {
                 return;
             }
 
-            do { randomDirection = getRandomDirection();
+            do {
+                randomDirection = getRandomDirection();
             } while (randomDirection == Direction.NONE);
             standardMonsterMovement();
         };

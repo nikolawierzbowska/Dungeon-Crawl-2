@@ -11,9 +11,12 @@ import java.util.concurrent.TimeUnit;
 public class Ghost extends Monster {
     private boolean isVisible = true;
     private int invisibleTimer = 0;
+
     private static final int INVISIBLE_DURATION = 2000;
     private Direction previousDirection;
-    public Ghost(Cell cell, int health, int attackStrength, GameMap map) { super(cell, 12, 3); }
+    public Ghost(Cell cell, int health, int attackStrength, GameMap map) {
+      super(cell, 12, 3); 
+    }
 
     @Override
     public void move() {

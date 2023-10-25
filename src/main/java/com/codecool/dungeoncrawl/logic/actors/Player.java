@@ -21,7 +21,8 @@ public class Player extends Actor {
 
     @Override
     public void move(int dx, int dy) {
-        Cell nextCell = cell.getNeighbor(dx, dy);
+            Cell nextCell = cell.getNeighbor(dx, dy);
+
         if (!nextCell.isOccupied()) {
             cell.setActor(null);
             nextCell.setActor(this);
@@ -33,7 +34,19 @@ public class Player extends Actor {
             monster.damageReceived(damage);
             int monsterDamage = monster.getAttackStrength();
             this.damageReceived(monsterDamage);
+        }else if (this instanceof Player) {
+            Player player = (Player) this;
+            String playerName = player.getName();
+            if (DeveloperName.isDeveloperName(playerName)) {
+                // cheat mode is on and play sound
+                Main.playSound(CHEAT_SOUND);
+                // Allow walking through walls
+                cell.setActor(null);
+                nextCell.setActor(this);
+                cell = nextCell;
+            }
         }
+
     }
 
     public Inventory getInventory() {
@@ -43,7 +56,13 @@ public class Player extends Actor {
     public String getTileName() {
         return "player";
     }
+
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
