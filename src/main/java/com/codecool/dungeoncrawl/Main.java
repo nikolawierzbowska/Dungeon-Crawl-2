@@ -56,6 +56,7 @@ public class Main extends Application implements MonsterEventListener {
 
     @Override
     public void start(Stage primaryStage) {
+        init();
         GridPane ui = new GridPane();
         ui.setPrefWidth(200);
         ui.setPadding(new Insets(10, 15, 10, 15));
@@ -284,11 +285,28 @@ public class Main extends Application implements MonsterEventListener {
         }
     }
 
+//    private void resetGame() {
+//        GameStateManager.setGameIsOver(false);
+//        map = MapLoader.loadMap(keyFlag, "", player);
+//        player.getInventory().clearInventory();
+//        player.setHealth(player.getHealth());
+//        alert.close();
+//        contextInventory.clearRect(0, 0, canvasInventory.getWidth(), canvasInventory.getHeight());
+//        refresh();
+//    }
+
     private void resetGame() {
         GameStateManager.setGameIsOver(false);
         map = MapLoader.loadMap(keyFlag, "", player);
         player.getInventory().clearInventory();
-        alert.close();
+        player.setHealth(player.setValueOfHealth());
+        player.setAttackStrength(player.setValueOfAttack());
+//        name.clear();
+        if (alert == null) {
+            refresh();
+        } else {
+            alert.close();
+        }
         contextInventory.clearRect(0, 0, canvasInventory.getWidth(), canvasInventory.getHeight());
         refresh();
     }
