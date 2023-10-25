@@ -53,6 +53,9 @@ public class MapLoader {
                         case '.':
                             cell.setType(CellType.FLOOR);
                             break;
+                        case 'G':
+                            cell.setType(CellType.GATE);
+                            break;
                         case '%':
                             cell.setType(CellType.STAIRS);
                             break;

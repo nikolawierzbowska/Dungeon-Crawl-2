@@ -2,11 +2,8 @@ package com.codecool.dungeoncrawl.logic.actors;
 
 import com.codecool.dungeoncrawl.Main;
 import com.codecool.dungeoncrawl.logic.Cell;
-import com.codecool.dungeoncrawl.logic.CellType;
 import com.codecool.dungeoncrawl.logic.Drawable;
 import lombok.Setter;
-
-import javax.sound.sampled.Clip;
 
 import static com.codecool.dungeoncrawl.Main.CHEAT_SOUND;
 import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
@@ -17,7 +14,6 @@ public abstract class Actor implements Drawable {
     protected Cell cell;
     private int health = 10;
     private int attackStrength = 5;
-    private Clip cheatSound;
 
     public Actor(Cell cell) {
         this.cell = cell;
@@ -34,8 +30,22 @@ public abstract class Actor implements Drawable {
 
     public void move(int dx, int dy) {
         Cell nextCell = cell.getNeighbor(dx, dy);
-      
-        // General movement logic
+
+        // Check for developer cheat
+        if (this instanceof Player) {
+            Player player = (Player) this;
+            String playerName = player.getName();
+            if (DeveloperName.isDeveloperName(playerName)) {
+                // cheat mode is on and play sound
+                Main.playSound(CHEAT_SOUND);
+                // Allow walking through walls
+                cell.setActor(null);
+                nextCell.setActor(this);
+                cell = nextCell;
+                return;  // Exit the method early to skip the rest of the logic
+            }
+        }
+
         if (!nextCell.isOccupied()) {
             cell.setActor(null);
             nextCell.setActor(this);
@@ -47,20 +57,7 @@ public abstract class Actor implements Drawable {
             monster.damageReceived(damage);
             int monsterDamage = monster.getAttackStrength();
             this.damageReceived(monsterDamage);
-        }else if (this instanceof Player) {
-            Player player = (Player) this;
-            String playerName = player.getName();
-            if (DeveloperName.isDeveloperName(playerName)) {
-                // cheat mode is on and play sound
-                Main.playSound(CHEAT_SOUND);
-                // Allow walking through walls
-                cell.setActor(null);
-                nextCell.setActor(this);
-                cell = nextCell;
-                  // Exit the method early to skip the rest of the logic
-            }
         }
-
     }
 
 
