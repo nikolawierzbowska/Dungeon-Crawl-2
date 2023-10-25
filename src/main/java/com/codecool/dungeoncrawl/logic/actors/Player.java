@@ -3,9 +3,13 @@ package com.codecool.dungeoncrawl.logic.actors;
 import com.codecool.dungeoncrawl.Main;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.Inventory;
+import lombok.Getter;
 
 import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
+import static com.codecool.dungeoncrawl.Main.CHEAT_SOUND;
 
+
+@Getter
 public class Player extends Actor {
     private Inventory inventory = new Inventory();
     private String name;
@@ -21,7 +25,7 @@ public class Player extends Actor {
 
     @Override
     public void move(int dx, int dy) {
-            Cell nextCell = cell.getNeighbor(dx, dy);
+        Cell nextCell = cell.getNeighbor(dx, dy);
 
         if (!nextCell.isOccupied()) {
             cell.setActor(null);
@@ -34,8 +38,10 @@ public class Player extends Actor {
             monster.damageReceived(damage);
             int monsterDamage = monster.getAttackStrength();
             this.damageReceived(monsterDamage);
-        }else if (this instanceof Player) {
-            Player player = (Player) this;
+            monster.removeIfDead(this.getCell());
+            System.out.println("zdrowie: " + monster.getHealth());
+        } else {
+            Player player = this;
             String playerName = player.getName();
             if (DeveloperName.isDeveloperName(playerName)) {
                 // cheat mode is on and play sound
@@ -49,18 +55,10 @@ public class Player extends Actor {
 
     }
 
-    public Inventory getInventory() {
-        return inventory;
-    }
-
     public String getTileName() {
         return "player";
     }
 
-
-    public String getName() {
-        return name;
-    }
 
     public void setName(String name) {
         this.name = name;

@@ -53,7 +53,6 @@ public class SmilingBob extends Monster {
         return null;
     }
 
-
     protected Direction calculatePlayerDirection(Cell playerCell) {
         int playerX = playerCell.getX();
         int playerY = playerCell.getY();

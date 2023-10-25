@@ -172,7 +172,7 @@ public class Main extends Application implements MonsterEventListener {
 
     }
 
-    public void addEventsForButtonsAndLabels(){
+    public void addEventsForButtonsAndLabels() {
         buttonPickUp.setFocusTraversable(false);
         buttonExit.setFocusTraversable(false);
         buttonPlayAgain.setFocusTraversable(false);
@@ -198,6 +198,7 @@ public class Main extends Application implements MonsterEventListener {
             if (!name.getText().isEmpty())
                 buttonSubmit.setDisable(true);
         });
+    }
 
 
     private void onKeyPressed(KeyEvent keyEvent) {
@@ -238,8 +239,6 @@ public class Main extends Application implements MonsterEventListener {
             }
         }
 
-             
-
         healthLabel.setText(String.valueOf(player.getHealth()));
         playerAttackLabel.setText(String.valueOf(player.getAttackStrength()));
         inventoryLabel.setText("Inventory: ");
@@ -247,7 +246,7 @@ public class Main extends Application implements MonsterEventListener {
         checkIsGameOver();
         changeMap();
 
-        }
+    }
 
     public void displayInventory() {
         int x = 0;
@@ -366,7 +365,7 @@ public class Main extends Application implements MonsterEventListener {
                 }
             }
         }
-        refresh();
+//        refresh();
     }
 
     public void checkIsGameOver() {
@@ -424,5 +423,8 @@ public class Main extends Application implements MonsterEventListener {
         }
     }
 
-   
+    @Override
+    public void onMonsterMovement() {
+
+    }
 }

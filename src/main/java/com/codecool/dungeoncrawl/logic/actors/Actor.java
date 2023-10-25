@@ -33,7 +33,6 @@ public abstract class Actor implements Drawable {
 
     }
 
-
     public void damageReceived(int damage) {
         int remainingHealth = this.getHealth();
         remainingHealth -= damage;

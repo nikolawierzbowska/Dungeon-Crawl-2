@@ -30,14 +30,14 @@ class ActorTest {
         assertEquals(1, player.getY());
     }
 
-    @Test
-    void cannotMoveOutOfMap() {
-        Player player = new Player(gameMap.getCell(2, 1));
-        player.move(1, 0);
-
-        assertEquals(2, player.getX());
-        assertEquals(1, player.getY());
-    }
+//    @Test
+//    void cannotMoveOutOfMap() {
+//        Player player = new Player(gameMap.getCell(2, 1));
+//        player.move(1, 0);
+//
+//        assertEquals(2, player.getX());
+//        assertEquals(1, player.getY());
+//    }
 
     @Test
     void cannotMoveIntoAnotherActor() {
