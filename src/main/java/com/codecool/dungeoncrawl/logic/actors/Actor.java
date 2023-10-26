@@ -8,6 +8,7 @@ import lombok.Setter;
 import static com.codecool.dungeoncrawl.Main.CHEAT_SOUND;
 import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
 
+import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
 
 public abstract class Actor implements Drawable {
     @Setter
@@ -29,41 +30,13 @@ public abstract class Actor implements Drawable {
     }
 
     public void move(int dx, int dy) {
-        Cell nextCell = cell.getNeighbor(dx, dy);
 
-        if (!nextCell.isOccupied()) {
-            cell.setActor(null);
-            nextCell.setActor(this);
-            cell = nextCell;
-        } else if (nextCell.getActor() instanceof Monster) {
-            Monster monster = (Monster) nextCell.getActor();
-            int damage = this.getAttackStrength();
-            Main.playSound(FIGHT_SOUND);
-            monster.damageReceived(damage);
-            int monsterDamage = monster.getAttackStrength();
-            this.damageReceived(monsterDamage);
-        }else if (this instanceof Player) {
-            Player player = (Player) this;
-            String playerName = player.getName();
-            if (DeveloperName.isDeveloperName(playerName)) {
-                Main.playSound(CHEAT_SOUND);
-                cell.setActor(null);
-                nextCell.setActor(this);
-                cell = nextCell;
-
-            }
-        }
     }
-
 
     public void damageReceived(int damage) {
         int remainingHealth = this.getHealth();
         remainingHealth -= damage;
         this.setHealth(remainingHealth);
-
-        if (remainingHealth <= 0) {
-            this.getCell().setActor(null);
-        }
     }
 
     public int getHealth() {
@@ -90,6 +63,7 @@ public abstract class Actor implements Drawable {
     public void setAttackStrength(int attackStrength) {
         this.attackStrength = attackStrength;
     }
+
 
     public Cell getCell() {
         return cell;

@@ -8,6 +8,7 @@ public class Elemental extends Monster {
         super(cell, 15, 5);
     }
 
+
     @Override
     public String getTileName() {
         return "elemental";

@@ -1,8 +1,8 @@
 package com.codecool.dungeoncrawl;
 
 import com.codecool.dungeoncrawl.logic.*;
-import com.codecool.dungeoncrawl.logic.actors.Monster;
-import com.codecool.dungeoncrawl.logic.actors.Player;
+import com.codecool.dungeoncrawl.logic.Cell;
+import com.codecool.dungeoncrawl.logic.actors.*;
 import com.codecool.dungeoncrawl.logic.items.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -10,11 +10,9 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+
+import javafx.scene.control.*;
+
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -28,7 +26,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.io.File;
 
-public class Main extends Application {
+
+public class Main extends Application implements MonsterEventListener {
     private Alert alert;
     private final List<Monster> monsters = new ArrayList<>();
     public static boolean keyFlag = false;
@@ -37,10 +36,12 @@ public class Main extends Application {
     public static final String FIGHT_SOUND = "fight.wav";
     private final String SWORD_SOUND = "sword.wav";
     private final String KEYS_SOUND = "keys.wav";
+
     public static final String CHEAT_SOUND = "/cheatOn.wav";
     GameMap map;
     Canvas canvas;
     Player player;
+
     Canvas canvasInventory = new Canvas(
             4 * Tiles.TILE_WIDTH,
             5 * Tiles.TILE_WIDTH);
@@ -57,7 +58,7 @@ public class Main extends Application {
     Button buttonSubmit = new Button("Submit");
     Button buttonExit = new Button("EXIT");
     Button buttonPlayAgain = new Button("Play again");
-
+    
     public static void main(String[] args) {
         launch(args);
     }
@@ -162,12 +163,16 @@ public class Main extends Application {
         ui.add(canvasInventory, 0, 7);
         GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
         ui.add(buttonPickUp, 0, 5);
+
+        canvasInventory.setHeight(400);
+
+       
         ui.add(buttonExit, 0, 20);
         ui.add(buttonPlayAgain, 0, 21);
 
     }
 
-    public void addEventsForButtonsAndLabels(){
+    public void addEventsForButtonsAndLabels() {
         buttonPickUp.setFocusTraversable(false);
         buttonExit.setFocusTraversable(false);
         buttonPlayAgain.setFocusTraversable(false);
@@ -179,6 +184,7 @@ public class Main extends Application {
         name.textProperty().addListener((observable, oldValue, newValue) -> {
             map.getPlayer().setName(newValue);
         });
+
 
         if (name.getText().isEmpty()) {
             name.setFocusTraversable(false);
@@ -192,9 +198,8 @@ public class Main extends Application {
             if (!name.getText().isEmpty())
                 buttonSubmit.setDisable(true);
         });
-
-
     }
+
 
     private void onKeyPressed(KeyEvent keyEvent) {
         switch (keyEvent.getCode()) {
@@ -218,7 +223,6 @@ public class Main extends Application {
         playSound(STEP_SOUND);
     }
 
-
     private void refresh() {
         context.setFill(Color.BLACK);
         context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -234,6 +238,7 @@ public class Main extends Application {
                 }
             }
         }
+
         healthLabel.setText(String.valueOf(player.getHealth()));
         playerAttackLabel.setText(String.valueOf(player.getAttackStrength()));
         inventoryLabel.setText("Inventory: ");
@@ -242,7 +247,6 @@ public class Main extends Application {
         changeMap();
 
     }
-
 
     public void displayInventory() {
         int x = 0;
@@ -295,6 +299,7 @@ public class Main extends Application {
         healthLabel.setText(String.valueOf(health));
     }
 
+
     public void collectItems() {
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
@@ -304,7 +309,8 @@ public class Main extends Application {
                     if (cell.getItem() instanceof Armour) {
                         playSound(SWORD_SOUND);
                         addHealth(cell);
-                    } else if (cell.getItem() instanceof Elixir) {
+                    }else if (cell.getItem() instanceof Elixir) {
+
                         playSound(ELIXIR_SOUND);
                         addHealth(cell);
                     } else if (cell.getItem() instanceof KeyClass) {
@@ -325,6 +331,7 @@ public class Main extends Application {
             }
         }
     }
+
 
     public static Clip playSound(String fileName) {
         try {
@@ -358,14 +365,13 @@ public class Main extends Application {
                 }
             }
         }
+//        refresh();
     }
-
 
     public void checkIsGameOver() {
         int playerHealth = player.getHealth();
         if (playerHealth <= 0) {
             GameStateManager.setGameIsOver(true);
-            stopMonsterMovementThreads();
             alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Game Over");
             alert.setHeaderText("Game Over!");
@@ -377,12 +383,20 @@ public class Main extends Application {
             alert.getButtonTypes().setAll(playAgainButton, quitButton);
             alert.showAndWait().ifPresent(response -> {
                 switch (response.getText()) {
-                    case "Play Again" -> resetGame();
-                    case "Quit" -> Platform.exit();
+                    case "Play Again":
+                        stopMonsterMovementThreads();
+                        resetGame();
+                        break;
+                    case "Quit":
+                        stopMonsterMovementThreads();
+                        Platform.exit();
+                        break;
+
                 }
             });
         }
     }
+
 
     private void resetGame() {
         GameStateManager.setGameIsOver(false);
@@ -390,7 +404,9 @@ public class Main extends Application {
         player.getInventory().clearInventory();
         player.setHealth(player.setValueOfHealth());
         player.setAttackStrength(player.setValueOfAttack());
+
         name.clear();
+
         if (alert == null) {
             refresh();
         } else {
@@ -402,7 +418,14 @@ public class Main extends Application {
 
     private void stopMonsterMovementThreads() {
         for (Monster monster : monsters) {
-            monster.stopMovementThread();
+            if (!(monster instanceof Elemental))
+                monster.stopMovementThread();
         }
     }
+
+    @Override
+    public void onMonsterMovement() {
+
+    }
 }
+
