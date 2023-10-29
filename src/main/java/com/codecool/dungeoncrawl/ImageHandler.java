@@ -17,8 +17,8 @@ public class ImageHandler {
         ImageView imageView = new ImageView(image);
         imageView.setX(0);
         imageView.setY(0);
-        imageView.setFitHeight(540);
-        imageView.setFitWidth(700);
+        imageView.setFitHeight(550);
+        imageView.setFitWidth(800);
         return new Group(imageView);
     }
 }

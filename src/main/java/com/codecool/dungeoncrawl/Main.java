@@ -105,7 +105,7 @@ public class Main extends Application implements MonsterEventListener {
     public void addElementsOnFirstBoarder(GridPane ui1) {
         ui1.setPrefHeight(100);
         ui1.setVgap(20);
-        ui1.setPadding(new Insets(10, 0, 20, 300));
+        ui1.setPadding(new Insets(10, 0, 20, 330));
         ui1.add(createPlayGameButton(primaryStage), 0, 0);
         ui1.add(buttonsAndLabels.playersList(), 0, 1);
         ui1.add(buttonsAndLabels.createExitButton(), 0, 2);
@@ -119,7 +119,7 @@ public class Main extends Application implements MonsterEventListener {
         GridPane ui = new GridPane();
         addElementsOnScene.addElementsOnScene(ui, healthLabel, playerAttackLabel, inventoryLabel, name, buttonSubmit, buttonPickUp, buttonPlayAgain);
         ui.add(canvasInventory, 0, 7);
-        canvasInventory.setHeight(400);
+        ui.add(createMenuButton(), 0, 16);
         return ui;
     }
 
@@ -203,6 +203,20 @@ public class Main extends Application implements MonsterEventListener {
         button.setFocusTraversable(false);
         button.setOnAction(actionEvent -> {
             createGame(primaryStage);
+        });
+        return button;
+    }
+
+    public Button createMenuButton() {
+        Button button = new Button("MENU");
+        button.setFocusTraversable(false);
+        button.setOnAction(actionEvent -> {
+            try {
+                createMenu(primaryStage);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
         });
         return button;
     }
