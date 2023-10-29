@@ -5,10 +5,7 @@ import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.Drawable;
 import lombok.Setter;
 
-import static com.codecool.dungeoncrawl.Main.CHEAT_SOUND;
-import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
 
-import static com.codecool.dungeoncrawl.Main.FIGHT_SOUND;
 
 public abstract class Actor implements Drawable {
     @Setter
