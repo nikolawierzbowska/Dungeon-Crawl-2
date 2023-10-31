@@ -1,10 +1,12 @@
-package com.codecool.dungeoncrawl.logic;
+package com.codecool.dungeoncrawl.logic.cell;
 
+import com.codecool.dungeoncrawl.logic.Drawable;
+import com.codecool.dungeoncrawl.logic.map.GameMap;
 import com.codecool.dungeoncrawl.logic.actors.Actor;
 import com.codecool.dungeoncrawl.logic.actors.Monster;
 import com.codecool.dungeoncrawl.logic.items.Item;
 
-import static com.codecool.dungeoncrawl.logic.CellType.*;
+import static com.codecool.dungeoncrawl.logic.cell.CellType.*;
 
 public class Cell implements Drawable {
     private CellType type;

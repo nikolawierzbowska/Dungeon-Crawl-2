@@ -9,10 +9,10 @@ import java.sql.SQLException;
 public class App {
     public static void main(String[] args) throws SQLException {
         Main.main(args);
-        GameDatabaseManager gameDatabaseManager = new GameDatabaseManager();
-
-        PlayerDaoJdbc playerDaoJdbc = new PlayerDaoJdbc(gameDatabaseManager.connect());
-        System.out.println(playerDaoJdbc.get(1));
+//        GameDatabaseManager gameDatabaseManager = new GameDatabaseManager();
+//
+//        PlayerDaoJdbc playerDaoJdbc = new PlayerDaoJdbc(gameDatabaseManager.connect());
+//        System.out.println(playerDaoJdbc.get(1));
 //        System.out.println(playerDaoJdbc.getAll());
 //        PlayerModel playerModel = new PlayerModel("Jan",5,5);
 //        playerModel.setHp(100);

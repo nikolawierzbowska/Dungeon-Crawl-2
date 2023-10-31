@@ -1,6 +1,6 @@
 package com.codecool.dungeoncrawl.logic.items;
 
-import com.codecool.dungeoncrawl.logic.Cell;
+import com.codecool.dungeoncrawl.logic.cell.Cell;
 
 public class Door extends Item {
     public final String TILE_NAME = "door";
