@@ -1,5 +1,6 @@
 package com.codecool.dungeoncrawl;
 
+import com.codecool.dungeoncrawl.handler.SoundHandler;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.GameMap;
 import com.codecool.dungeoncrawl.logic.actors.Player;
@@ -8,8 +9,6 @@ import com.codecool.dungeoncrawl.logic.items.Elixir;
 import com.codecool.dungeoncrawl.logic.items.KeyClass;
 import com.codecool.dungeoncrawl.logic.items.Sword;
 import javafx.scene.control.Label;
-
-import java.awt.*;
 
 public class CollectItems {
 

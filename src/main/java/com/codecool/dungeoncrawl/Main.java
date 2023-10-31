@@ -1,8 +1,13 @@
 package com.codecool.dungeoncrawl;
 
+import com.codecool.dungeoncrawl.dao.GameDatabaseManager;
+import com.codecool.dungeoncrawl.handler.ImageHandler;
+import com.codecool.dungeoncrawl.handler.KeyHandler;
+import com.codecool.dungeoncrawl.handler.SoundHandler;
 import com.codecool.dungeoncrawl.logic.*;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.actors.*;
+import com.codecool.dungeoncrawl.savegame.SaveGame;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -15,19 +20,22 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
 import java.io.FileNotFoundException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Main extends Application implements MonsterEventListener {
-   KeyHandler keyHandler = new KeyHandler();
+    KeyHandler keyHandler = new KeyHandler();
     SoundHandler soundHandler = new SoundHandler();
     DisplayInventory displayInventory = new DisplayInventory();
     ImageHandler imageHandler = new ImageHandler();
     ButtonsAndLabels buttonsAndLabels = new ButtonsAndLabels();
     CollectItems collectItems = new CollectItems();
     AddElementsOnScene addElementsOnScene = new AddElementsOnScene();
+    GameDatabaseManager gameDatabaseManager = new GameDatabaseManager();
 
     private Alert alert;
     Stage primaryStage;
@@ -52,15 +60,17 @@ public class Main extends Application implements MonsterEventListener {
     Button buttonPickUp = new Button("Pick Up");
     Button buttonSubmit = new Button("Submit");
     Button buttonPlayAgain = new Button("Play again");
+    Stage primaryStage1 =new Stage();
 
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) throws FileNotFoundException {
+    public void start(Stage primaryStage) throws FileNotFoundException, SQLException {
         this.primaryStage = primaryStage;
         createMenu(primaryStage);
+        gameDatabaseManager.setup();
     }
 
     public void createMenu(Stage primaryStage) throws FileNotFoundException {
@@ -71,7 +81,8 @@ public class Main extends Application implements MonsterEventListener {
         showPrimaryStage(primaryStage);
     }
 
-    public void createGame(Stage primaryStage) {
+    public void createGame(Stage primaryStage1){
+        this.primaryStage1 =primaryStage1;
         initializeGame();
         setupButtonAndLabelEvents();
         GridPane ui = createUI();
@@ -81,11 +92,14 @@ public class Main extends Application implements MonsterEventListener {
         extractMonstersFromMap();
 
         Scene scene2 = new Scene(borderPane);
-        configureScene(primaryStage, scene2);
+
+        configureScene(primaryStage1, scene2);
 
         setupKeyPressEventHandler(scene2);
-        setupCloseRequestHandler(primaryStage);
-        showPrimaryStage(primaryStage);
+        setupCloseRequestHandler(primaryStage1);
+        showPrimaryStage(primaryStage1);
+
+
     }
 
     private BorderPane createFirstBoarderPane(GridPane ui1) throws FileNotFoundException {
@@ -202,7 +216,11 @@ public class Main extends Application implements MonsterEventListener {
         Button button = new Button("PLAY GAME");
         button.setFocusTraversable(false);
         button.setOnAction(actionEvent -> {
-            createGame(primaryStage);
+            try {
+                createGame(primaryStage);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
         return button;
     }
@@ -228,12 +246,11 @@ public class Main extends Application implements MonsterEventListener {
         name.setFocusTraversable(false);
         buttonSubmit.setFocusTraversable(false);
         buttonPickUp.setOnAction(actionEvent -> {
-                System.out.println("print");
-                collectItems.collectItems(map, player, cell);
-                refresh();
+            collectItems.collectItems(map, player, cell);
+            refresh();
         });
         buttonPlayAgain.setOnAction(actionEvent -> {
-           resetGame();
+            resetGame();
             contextInventory.clearRect(0, 0, canvasInventory.getWidth(), canvasInventory.getHeight());
             refresh();
         });
@@ -264,21 +281,31 @@ public class Main extends Application implements MonsterEventListener {
             case UP:
                 player.move(0, -1);
                 refresh();
+                soundHandler.playSound(soundHandler.STEP_SOUND);
                 break;
             case DOWN:
                 player.move(0, 1);
                 refresh();
+                soundHandler.playSound(soundHandler.STEP_SOUND);
                 break;
             case LEFT:
                 player.move(-1, 0);
+                soundHandler.playSound(soundHandler.STEP_SOUND);
                 refresh();
                 break;
             case RIGHT:
                 player.move(1, 0);
+                soundHandler.playSound(soundHandler.STEP_SOUND);
                 refresh();
                 break;
+            case S:
+                Player savePlayer = map.getPlayer();
+                SaveGame saveGame = new SaveGame(savePlayer, gameDatabaseManager, map);
+                saveGame.saveGamePopup(primaryStage1);
+                break;
+
         }
-        soundHandler.playSound(soundHandler.STEP_SOUND);
+
     }
 
     private void refresh() {

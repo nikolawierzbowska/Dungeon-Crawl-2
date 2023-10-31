@@ -1,4 +1,4 @@
-package com.codecool.dungeoncrawl;
+package com.codecool.dungeoncrawl.handler;
 
 import javafx.scene.Group;
 import javafx.scene.image.Image;

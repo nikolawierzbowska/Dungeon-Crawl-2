@@ -1,6 +1,6 @@
 package com.codecool.dungeoncrawl.logic.actors;
 
-import com.codecool.dungeoncrawl.SoundHandler;
+import com.codecool.dungeoncrawl.handler.SoundHandler;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.Inventory;
 import lombok.Getter;

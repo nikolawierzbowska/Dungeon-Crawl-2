@@ -1,4 +1,4 @@
-package com.codecool.dungeoncrawl;
+package com.codecool.dungeoncrawl.handler;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
