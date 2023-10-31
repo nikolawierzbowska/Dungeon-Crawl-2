@@ -1,7 +1,6 @@
 package com.codecool.dungeoncrawl.logic.actors;
 
-import com.codecool.dungeoncrawl.Main;
-import com.codecool.dungeoncrawl.logic.Cell;
+import com.codecool.dungeoncrawl.logic.cell.Cell;
 import com.codecool.dungeoncrawl.logic.Drawable;
 import lombok.Setter;
 

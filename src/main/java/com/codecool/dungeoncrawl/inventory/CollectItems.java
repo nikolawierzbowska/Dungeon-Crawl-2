@@ -1,8 +1,8 @@
-package com.codecool.dungeoncrawl;
+package com.codecool.dungeoncrawl.inventory;
 
 import com.codecool.dungeoncrawl.handler.SoundHandler;
-import com.codecool.dungeoncrawl.logic.Cell;
-import com.codecool.dungeoncrawl.logic.GameMap;
+import com.codecool.dungeoncrawl.logic.cell.Cell;
+import com.codecool.dungeoncrawl.logic.map.GameMap;
 import com.codecool.dungeoncrawl.logic.actors.Player;
 import com.codecool.dungeoncrawl.logic.items.Armour;
 import com.codecool.dungeoncrawl.logic.items.Elixir;

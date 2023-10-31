@@ -1,6 +1,5 @@
 package com.codecool.dungeoncrawl;
 
-import com.codecool.dungeoncrawl.logic.CellType;
 import com.codecool.dungeoncrawl.logic.Drawable;
 import com.codecool.dungeoncrawl.logic.items.Item;
 import javafx.scene.canvas.GraphicsContext;

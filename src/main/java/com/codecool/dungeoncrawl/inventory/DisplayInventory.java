@@ -1,5 +1,6 @@
-package com.codecool.dungeoncrawl;
+package com.codecool.dungeoncrawl.inventory;
 
+import com.codecool.dungeoncrawl.Tiles;
 import com.codecool.dungeoncrawl.logic.actors.Player;
 import com.codecool.dungeoncrawl.logic.items.*;
 import javafx.scene.canvas.GraphicsContext;

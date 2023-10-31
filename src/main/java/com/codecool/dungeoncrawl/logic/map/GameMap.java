@@ -1,6 +1,8 @@
-package com.codecool.dungeoncrawl.logic;
+package com.codecool.dungeoncrawl.logic.map;
 
 import com.codecool.dungeoncrawl.logic.actors.Player;
+import com.codecool.dungeoncrawl.logic.cell.Cell;
+import com.codecool.dungeoncrawl.logic.cell.CellType;
 
 public class GameMap {
     private int width;

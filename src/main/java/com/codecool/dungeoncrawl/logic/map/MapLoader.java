@@ -1,6 +1,8 @@
-package com.codecool.dungeoncrawl.logic;
+package com.codecool.dungeoncrawl.logic.map;
 
 import com.codecool.dungeoncrawl.logic.actors.*;
+import com.codecool.dungeoncrawl.logic.cell.Cell;
+import com.codecool.dungeoncrawl.logic.cell.CellType;
 import com.codecool.dungeoncrawl.logic.items.*;
 
 import java.io.InputStream;
