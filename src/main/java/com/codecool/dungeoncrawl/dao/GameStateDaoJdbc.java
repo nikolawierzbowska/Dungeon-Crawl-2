@@ -9,7 +9,6 @@ import java.sql.Date;
 import java.util.List;
 
 public class GameStateDaoJdbc implements GameStateDao {
-
     private DataSource dataSource;
 
     public GameStateDaoJdbc(DataSource dataSource) {
@@ -68,6 +67,22 @@ public class GameStateDaoJdbc implements GameStateDao {
         return null;
     }
 
+    public int getGameIdByPlayerId(int playerId) {
+        try(Connection connection = dataSource.getConnection()) {
+            String GET_GAME_ID_BY_PLAYER_ID = "SELECT id FROM game_state WHERE player_id = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(GET_GAME_ID_BY_PLAYER_ID);
+            preparedStatement.setInt(1, playerId);
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                if(resultSet.next()){
+                    int id = resultSet.getInt("id");
+                    return id;
+                }
+            }
+        }catch (SQLException exception){
+            throw new RuntimeException(exception);
+        }
+        return -1;
+    }
     @Override
     public List<GameState> getAll() {
         List<GameState> gameStatesList = new ArrayList<>();

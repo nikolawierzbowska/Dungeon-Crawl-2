@@ -21,7 +21,6 @@ public class Player extends Actor {
     @Override
     public void move(int dx, int dy) {
         Cell nextCell = cell.getNeighbor(dx, dy);
-
         if (!nextCell.isOccupied()) {
             cell.setActor(null);
             nextCell.setActor(this);
@@ -29,7 +28,7 @@ public class Player extends Actor {
         } else if (nextCell.getActor() instanceof Monster) {
             Monster monster = (Monster) nextCell.getActor();
             int damage = this.getAttackStrength();
-           SoundHandler.playSound(SoundHandler.FIGHT_SOUND);
+            SoundHandler.playSound(SoundHandler.FIGHT_SOUND);
             monster.damageReceived(damage);
             int monsterDamage = monster.getAttackStrength();
             this.damageReceived(monsterDamage);
@@ -38,9 +37,7 @@ public class Player extends Actor {
             Player player = this;
             String playerName = player.getName();
             if (DeveloperName.isDeveloperName(playerName)) {
-                // cheat mode is on and play sound
                 SoundHandler.playSound(SoundHandler.CHEAT_SOUND);
-                // Allow walking through walls
                 cell.setActor(null);
                 nextCell.setActor(this);
                 cell = nextCell;
