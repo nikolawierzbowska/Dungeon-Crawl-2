@@ -11,7 +11,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Popup;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +24,6 @@ public class SaveGame {
     String currentMapName = "";
     GameDatabaseManager gameDatabaseManager;
     GameMap map;
-
     Popup popup = new Popup();
 
     public SaveGame(Player player, GameDatabaseManager gameDatabaseManager, GameMap map) {
@@ -46,7 +44,6 @@ public class SaveGame {
                 "-fx-border-width: 2px; -fx-border-style: solid;");
 
         popup.getContent().add(content);
-
         popup.setAutoHide(false);
         popup.show(primaryStage1);
 
@@ -56,7 +53,6 @@ public class SaveGame {
                 popup.hide();
             }
         });
-
 
         buttonSave.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -94,7 +90,6 @@ public class SaveGame {
         } else if (clickedButton.isPresent() && clickedButton.get() == noButton) {
             dialog.close();
             popup.setAutoHide(true);
-
         }
     }
 }

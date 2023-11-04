@@ -56,7 +56,10 @@ public class GameDatabaseManager {
 
     public Player loadPlayer(int id) {
         PlayerModel currentPlayer = gameDao.get(id).getPlayer();
-        Player loadedPlayer = new Player(null);
+        Player loadedPlayer = new Player();
+        loadedPlayer.setName(currentPlayer.getPlayerName());
+        loadedPlayer.setHealth(currentPlayer.getHp());
+        loadedPlayer.setAttackStrength(currentPlayer.getAttack());
         return loadedPlayer;
     }
 

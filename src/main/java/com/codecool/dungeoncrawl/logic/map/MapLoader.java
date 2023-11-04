@@ -4,7 +4,6 @@ import com.codecool.dungeoncrawl.logic.actors.*;
 import com.codecool.dungeoncrawl.logic.cell.Cell;
 import com.codecool.dungeoncrawl.logic.cell.CellType;
 import com.codecool.dungeoncrawl.logic.items.*;
-
 import java.io.InputStream;
 import java.util.*;
 
@@ -25,7 +24,14 @@ public class MapLoader {
         int width = scanner.nextInt();
         int height = scanner.nextInt();
         scanner.nextLine();
+        return drawGameMap(scanner, width, height, player);
+    }
 
+    public static GameMap loadMapFromDB(String map, Player player) {
+        Scanner scanner = new Scanner(map);
+        int width = scanner.nextInt();
+        int height = scanner.nextInt();
+        scanner.nextLine();
         return drawGameMap(scanner, width, height, player);
     }
 
@@ -144,11 +150,9 @@ public class MapLoader {
 
     public static String MapToString(GameMap map) {
         StringBuilder stringBuilder = new StringBuilder();
-
+        stringBuilder.append("25 20\n");
         for (int y = 0; y < map.getHeight(); y++) {
             for (int x = 0; x < map.getWidth(); x++) {
-                Cell cell = map.getCell(x, y);
-                stringBuilder.append(cell.getType().toString());
                 if (map.getCell(x, y).getItem() == null) {
                     if (map.getCell(x, y).getActor() == null) {
                         stringBuilder.append(cells.get(map.getCell(x, y).getType()));
@@ -161,7 +165,6 @@ public class MapLoader {
             }
             stringBuilder.append("\n");
         }
-
         return stringBuilder.toString();
     }
 }

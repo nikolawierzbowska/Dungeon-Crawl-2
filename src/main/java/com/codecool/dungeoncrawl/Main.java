@@ -6,6 +6,7 @@ import com.codecool.dungeoncrawl.handler.KeyHandler;
 import com.codecool.dungeoncrawl.handler.SoundHandler;
 import com.codecool.dungeoncrawl.inventory.CollectItems;
 import com.codecool.dungeoncrawl.inventory.DisplayInventory;
+import com.codecool.dungeoncrawl.loadgame.PlayersTable;
 import com.codecool.dungeoncrawl.logic.*;
 import com.codecool.dungeoncrawl.logic.cell.Cell;
 import com.codecool.dungeoncrawl.logic.actors.*;
@@ -25,11 +26,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 
 public class Main extends Application implements MonsterEventListener {
@@ -41,12 +42,11 @@ public class Main extends Application implements MonsterEventListener {
     CollectItems collectItems = new CollectItems();
     AddElementsOnScene addElementsOnScene = new AddElementsOnScene();
     GameDatabaseManager gameDatabaseManager = new GameDatabaseManager();
-
     private Alert alert;
     Stage primaryStage;
     public final List<Monster> monsters = new ArrayList<>();
-
     public static boolean keyFlag = false;
+    public static boolean realGame = true;
     Cell cell;
     GameMap map;
     Canvas canvas;
@@ -66,6 +66,10 @@ public class Main extends Application implements MonsterEventListener {
     Button buttonSubmit = new Button("Submit");
     Button buttonPlayAgain = new Button("Play again");
     Stage primaryStage1 =new Stage();
+    PlayersTable playersTable = new PlayersTable();
+
+    public Main() throws SQLException {
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -86,7 +90,7 @@ public class Main extends Application implements MonsterEventListener {
         showPrimaryStage(primaryStage);
     }
 
-    public void createGame(Stage primaryStage1){
+    public void createGameStage(Stage primaryStage1) {
         this.primaryStage1 =primaryStage1;
         initializeGame();
         setupButtonAndLabelEvents();
@@ -97,15 +101,16 @@ public class Main extends Application implements MonsterEventListener {
         extractMonstersFromMap();
 
         Scene scene2 = new Scene(borderPane);
-
         configureScene(primaryStage1, scene2);
 
         setupKeyPressEventHandler(scene2);
         setupCloseRequestHandler(primaryStage1);
         showPrimaryStage(primaryStage1);
-
-
     }
+    public void createGameStageAfterLoadFromDb() throws SQLException {
+        initialisation2();
+    }
+
 
     private BorderPane createFirstBoarderPane(GridPane ui1) throws FileNotFoundException {
         BorderPane borderPane = new BorderPane();
@@ -126,7 +131,7 @@ public class Main extends Application implements MonsterEventListener {
         ui1.setVgap(20);
         ui1.setPadding(new Insets(10, 0, 20, 330));
         ui1.add(createPlayGameButton(primaryStage), 0, 0);
-        ui1.add(buttonsAndLabels.playersList(), 0, 1);
+        ui1.add(playersList(), 0, 1);
         ui1.add(buttonsAndLabels.createExitButton(), 0, 2);
     }
 
@@ -152,6 +157,7 @@ public class Main extends Application implements MonsterEventListener {
 
     private BorderPane createBorderPane(GridPane ui) {
         BorderPane borderPane = new BorderPane();
+        System.out.println("canvas " +canvas);
         borderPane.setCenter(canvas);
         borderPane.setRight(ui);
         borderPane.setStyle("-fx-border-color: black");
@@ -196,34 +202,57 @@ public class Main extends Application implements MonsterEventListener {
         context = canvas.getGraphicsContext2D();
     }
 
-//    public void addElementsOnStage(GridPane ui) {
-//        ui.setPrefWidth(200);
-//        ui.setPadding(new Insets(10, 15, 10, 15));
-//        name.setPromptText("Enter player's name.");
-//        ui.add(labelName, 0, 0);
-//        ui.add(name, 0, 1);
-//        GridPane.setMargin(buttonSubmit, new Insets(10, 0, 30, 0));
-//        ui.add(buttonSubmit, 0, 2);
-//        ui.add(new Label("Health:"), 0, 3);
-//        ui.add(healthLabel, 1, 3);
-//        ui.add(attackLabel, 0, 4);
-//        ui.add(playerAttackLabel, 1, 4);
-//        ui.add(inventoryLabel, 0, 6);
-//        ui.add(canvasInventory, 0, 7);
-//        GridPane.setMargin(buttonPickUp, new Insets(50, 0, 10, 0));
-//        ui.add(buttonPickUp, 0, 5);
-//        canvasInventory.setHeight(400);
-//        ui.add(buttonsInMenu.createExitButton(), 0, 20);
-//        ui.add(buttonPlayAgain, 0, 21);
-//    }
+    public void initialisation2() throws SQLException {
+        realGame =false;
+
+        CompletableFuture<String> currentMapFuture = playersTable.loadGameDB();
+        currentMapFuture.thenAccept(currentMap -> {
+
+            map = MapLoader.loadMapFromDB(currentMap, playersTable.getPlayer());
+            canvas = new Canvas(map.getWidth() * Tiles.TILE_WIDTH, map.getHeight() * Tiles.TILE_WIDTH);
+            context = canvas.getGraphicsContext2D();
+            Platform.runLater(() -> {
+                setupButtonAndLabelEvents();
+                GridPane ui = createUI();
+                setupCanvasInventory();
+                BorderPane borderPane = createBorderPane(ui);
+
+                Scene scene2 = new Scene(borderPane);
+                primaryStage.close();
+                configureScene(primaryStage1, scene2);
+                setupKeyPressEventHandler(scene2);
+                showPrimaryStage(primaryStage1);
+            });
+        });
+    }
+
 
     private Button createPlayGameButton(Stage primaryStage) {
         Button button = new Button("PLAY GAME");
         button.setFocusTraversable(false);
         button.setOnAction(actionEvent -> {
             try {
-                createGame(primaryStage);
+                createGameStage(primaryStage);
             } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return button;
+    }
+
+    public Button playersList() {
+        Button button = new Button("PLAYERS LIST");
+        button.setFocusTraversable(false);
+        button.setOnAction(actionEvent -> {
+            try {
+                playersTable.createTable();
+            }
+            catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                createGameStageAfterLoadFromDb();
+            } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -282,6 +311,9 @@ public class Main extends Application implements MonsterEventListener {
     }
 
     private void onKeyPressed(KeyEvent keyEvent) {
+        if(!realGame){
+            player = playersTable.getPlayer();
+        }
         switch (keyEvent.getCode()) {
             case UP:
                 player.move(0, -1);
@@ -308,9 +340,7 @@ public class Main extends Application implements MonsterEventListener {
                 SaveGame saveGame = new SaveGame(savePlayer, gameDatabaseManager, map);
                 saveGame.saveGamePopup(primaryStage1);
                 break;
-
         }
-
     }
 
     private void refresh() {
@@ -328,14 +358,21 @@ public class Main extends Application implements MonsterEventListener {
                 }
             }
         }
-        healthLabel.setText(String.valueOf(player.getHealth()));
-        playerAttackLabel.setText(String.valueOf(player.getAttackStrength()));
-        inventoryLabel.setText("Inventory: ");
-        displayInventory.displayInventory(player, contextInventory);
-        checkIsGameOver();
-        changeMap();
-    }
 
+        if(realGame) {
+            healthLabel.setText(String.valueOf(player.getHealth()));
+            playerAttackLabel.setText(String.valueOf(player.getAttackStrength()));
+            inventoryLabel.setText("Inventory: ");
+            displayInventory.displayInventory(player, contextInventory);
+            checkIsGameOver();
+            changeMap();
+        }else{
+            healthLabel.setText(String.valueOf(playersTable.getPlayer().getHealth()));
+            playerAttackLabel.setText(String.valueOf(playersTable.getPlayer().getAttackStrength()));
+            inventoryLabel.setText("Inventory: ");
+            displayInventory.displayInventory(playersTable.getPlayer(), contextInventory);
+        }
+    }
 
     public void changeMap() {
         for (int x = 0; x < map.getWidth(); x++) {

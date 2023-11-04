@@ -1,9 +1,6 @@
 package com.codecool.dungeoncrawl.dao;
 
-
 import com.codecool.dungeoncrawl.model.PlayerModel;
-import lombok.Getter;
-
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
@@ -19,12 +16,13 @@ public class PlayerDaoJdbc implements PlayerDao {
     @Override
     public void add(PlayerModel player) {
         try (Connection conn = dataSource.getConnection()) {
-            String sql = "INSERT INTO player (player_name, hp, x, y) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO player (player_name, hp, x, y, attack) VALUES (?, ?, ?, ?,?)";
             PreparedStatement statement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, player.getPlayerName());
             statement.setInt(2, player.getHp());
             statement.setInt(3, player.getX());
             statement.setInt(4, player.getY());
+            statement.setInt(5, player.getAttack());
             statement.executeUpdate();
             ResultSet resultSet = statement.getGeneratedKeys();
             resultSet.next();
@@ -37,13 +35,14 @@ public class PlayerDaoJdbc implements PlayerDao {
     @Override
     public void update(PlayerModel player) {
         try(Connection connection = dataSource.getConnection()) {
-            String UPDATE_PLAYER = "UPDATE player SET player_name=? ,hp=?, x=?,y=? WHERE id=?";
+            String UPDATE_PLAYER = "UPDATE player SET player_name=? ,hp=?, x=?,y=?, attack=? WHERE id=?";
             PreparedStatement updateStatement = connection.prepareStatement(UPDATE_PLAYER);
             updateStatement.setString(1,player.getPlayerName());
             updateStatement.setInt(2, player.getHp());
             updateStatement.setInt(3,player.getX());
             updateStatement.setInt(4,player.getY());
-            updateStatement.setInt(5,player.getId());
+            updateStatement.setInt(5,player.getAttack());
+            updateStatement.setInt(6,player.getId());
             updateStatement.executeUpdate();
         }catch (SQLException exception) {
             throw new RuntimeException(exception);
@@ -61,7 +60,11 @@ public class PlayerDaoJdbc implements PlayerDao {
                     String playerName  = resultSet.getString("player_name");
                     int playerX = resultSet.getInt("x");
                     int playerY = resultSet.getInt("y");
+                    int playerHp = resultSet.getInt("hp");
+                    int playerAttack = resultSet.getInt("attack");
                     PlayerModel player=  new PlayerModel(playerName, playerX , playerY);
+                    player.setHp(playerHp);
+                    player.setAttack(playerAttack);
                     player.setId(id);
                     return player;
                 }
