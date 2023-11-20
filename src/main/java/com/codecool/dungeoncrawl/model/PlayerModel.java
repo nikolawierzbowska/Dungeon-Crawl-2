@@ -1,12 +1,15 @@
 package com.codecool.dungeoncrawl.model;
 
 import com.codecool.dungeoncrawl.logic.actors.Player;
+import com.codecool.dungeoncrawl.logic.items.Item;
+import java.util.ArrayList;
 
 public class PlayerModel extends BaseModel {
     private String playerName;
     private int hp;
     private int x;
     private int y;
+    private int attack;
 
     public PlayerModel(String playerName, int x, int y) {
         this.playerName = playerName;
@@ -20,7 +23,7 @@ public class PlayerModel extends BaseModel {
         this.y = player.getY();
 
         this.hp = player.getHealth();
-
+        this.attack = player.getAttackStrength();
     }
 
     public String getPlayerName() {
@@ -33,6 +36,14 @@ public class PlayerModel extends BaseModel {
 
     public int getHp() {
         return hp;
+    }
+
+    public int getAttack() {
+        return attack;
+    }
+
+    public void setAttack(int attack) {
+        this.attack = attack;
     }
 
     public void setHp(int hp) {

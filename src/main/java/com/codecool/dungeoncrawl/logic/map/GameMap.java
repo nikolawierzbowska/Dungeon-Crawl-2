@@ -1,6 +1,8 @@
-package com.codecool.dungeoncrawl.logic;
+package com.codecool.dungeoncrawl.logic.map;
 
 import com.codecool.dungeoncrawl.logic.actors.Player;
+import com.codecool.dungeoncrawl.logic.cell.Cell;
+import com.codecool.dungeoncrawl.logic.cell.CellType;
 
 public class GameMap {
     private int width;
@@ -21,6 +23,9 @@ public class GameMap {
     }
 
     public Cell getCell(int x, int y) {
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            return null;
+        }
         return cells[x][y];
     }
 
@@ -39,4 +44,5 @@ public class GameMap {
     public int getHeight() {
         return height;
     }
+
 }
